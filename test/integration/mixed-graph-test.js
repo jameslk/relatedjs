@@ -1,11 +1,11 @@
 import {expect} from 'chai';
 import sinon from 'sinon';
 
-import {Schema, Relations} from '../../lib';
+import {Schema, Graph} from '../../lib';
 
-describe('Relations with mixed relationships', () => {
+describe('Graph with mixed relationships', () => {
     let schemas;
-    let relations;
+    let graph;
 
     beforeEach(() => {
         schemas = [
@@ -20,21 +20,21 @@ describe('Relations with mixed relationships', () => {
                 .belongsTo('parentWithChildren')
         ];
 
-        relations = new Relations(schemas);
+        graph = new Graph(schemas);
     });
 
     it('can set relationships', () => {
-        relations
+        graph
             .set('child', 'bar').to('parentWithChild', 'foo')
             .set('child', 'baz').to('parentWithChild', 'foo')
             .set('child', 'bar').to('parentWithChildren', 'foos')
             .set('child', 'baz').to('parentWithChildren', 'foos');
 
-        //expect(relations.getParent('child', 'bar', 'parentWithChild')).to.equal('foo');
-        //expect(relations.getChild('parentWithChild', 'foo', 'child')).to.equal('bar');
+        //expect(graph.getParent('child', 'bar', 'parentWithChild')).to.equal('foo');
+        //expect(graph.getChild('parentWithChild', 'foo', 'child')).to.equal('bar');
         //
-        //expect(relations.getParent('child', 'bar', 'parentWithChildren')).to.equal('foos');
-        //expect(relations.getChildren('parentWithChildren', 'foos', 'child')).to.have.members(['bar']);
+        //expect(graph.getParent('child', 'bar', 'parentWithChildren')).to.equal('foos');
+        //expect(graph.getChildren('parentWithChildren', 'foos', 'child')).to.have.members(['bar']);
     });
 
     //it('can remove a relationship', () => {
