@@ -1,0 +1,35 @@
+{
+  "name": "related.js",
+  "version": "0.1.0",
+  "description": "Relationships for JavaScript objects",
+  "main": "lib",
+  "scripts": {
+    "test": "mocha --compilers js:babel/register test/*-test.js test/**/*-test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jameslk/relatedjs.git"
+  },
+  "keywords": [
+    "related",
+    "relatedjs",
+    "relationships",
+    "graph",
+    "schema"
+  ],
+  "author": "James Koshigoe",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jameslk/relatedjs/issues"
+  },
+  "homepage": "https://github.com/jameslk/relatedjs#readme",
+  "devDependencies": {
+    "babel": "^5.8.23",
+    "chai": "^3.2.0",
+    "grunt": "^0.4.5",
+    "grunt-contrib-watch": "^0.6.1",
+    "load-grunt-tasks": "^3.2.0",
+    "mocha": "^2.3.2",
+    "sinon": "^1.16.1"
+  }
+}
