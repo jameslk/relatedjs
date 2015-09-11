@@ -7,12 +7,23 @@ module.exports = function(grunt) {
                 sourceMap: 'inline'
             },
 
-            dist: {
+            build: {
                 files: [{
                     expand: true,
                     cwd: 'lib',
                     src: '**/*.js',
                     dest: 'build/lib'
+                }]
+            }
+        },
+
+        copy: {
+            dist: {
+                files: [{
+                    expand: true,
+                    cwd: 'build/lib',
+                    src: '**/*',
+                    dest: 'dist'
                 }]
             }
         },
@@ -24,8 +35,12 @@ module.exports = function(grunt) {
             }
         },
 
-        clean: ['build/']
+        clean: {
+            build: ['build'],
+            dist: ['dist']
+        }
     });
 
-    grunt.registerTask('build', ['clean', 'babel']);
+    grunt.registerTask('build', ['clean:build', 'babel']);
+    grunt.registerTask('dist', ['build', 'clean:dist', 'copy:dist']);
 };

@@ -15,6 +15,21 @@ separated out so that you're not forced to any specific implementation of how yo
 define your data. One particular benefit of this is that your data can be immutable
 and normalized the way you'd like, as the relationships are stored elsewhere.
 
+## Setup
+
+```bash
+$ npm install relatedjs
+```
+
+```javascript
+// nodejs:
+var RelatedJs = require('relatedjs');
+var Schema = RelatedJs.Schema, Graph = RelatedJs.Graph;
+
+// ES6:
+import {Schema, Graph} from 'relatedjs';
+```
+
 ## Quick start
 
 ```javascript
