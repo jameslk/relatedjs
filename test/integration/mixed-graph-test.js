@@ -2,6 +2,7 @@ import {expect} from 'chai';
 import sinon from 'sinon';
 
 import {Schema, Graph} from '../../lib';
+import {inspectGraph} from '../support/inspect';
 
 describe('Graph with mixed relationships', () => {
     let schemas;

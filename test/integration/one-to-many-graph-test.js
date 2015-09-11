@@ -2,6 +2,7 @@ import {expect} from 'chai';
 import sinon from 'sinon';
 
 import {Schema, Graph} from '../../lib';
+import {inspectGraph} from '../support/inspect';
 
 describe('Graph with a one to many relationship', () => {
     let schemas;
@@ -16,8 +17,8 @@ describe('Graph with a one to many relationship', () => {
         graph = new Graph(schemas);
     });
 
-    it('provides null for a missing parent relationship', () => {
-        expect(graph.getParent('child', 'bar', 'parent')).to.equal(null);
+    it('provides undefined for a missing parent relationship', () => {
+        expect(graph.getParent('child', 'bar', 'parent')).to.be.undefined;
     });
 
     it('provides an empty array for no children relationships', () => {
@@ -32,20 +33,20 @@ describe('Graph with a one to many relationship', () => {
         expect(graph.getChildren('parent', 'foo', 'child')).to.have.members(['bar']);
     });
 
-    it('appends the relationship with subsequent sets', () => {
+    it('can append relationships', () => {
         graph
-            .set('child', 'bar').to('parent', 'foo')
-            .set('child', 'baz').to('parent', 'foo');
+            .append('child', 'bar').to('parent', 'foo')
+            .append('child', 'baz').to('parent', 'foo');
 
         expect(graph.getParent('child', 'bar', 'parent')).to.equal('foo');
         expect(graph.getParent('child', 'baz', 'parent')).to.equal('foo');
         expect(graph.getChildren('parent', 'foo', 'child')).to.have.members(['bar', 'baz']);
     });
 
-    it('overwrites the relationship with subsequent sets to a different parent', () => {
+    it('overwrites the relationship with subsequent appends to a different parent', () => {
         graph
-            .set('child', 'bar').to('parent', 'foo')
-            .set('child', 'bar').to('parent', 'foos');
+            .append('child', 'bar').to('parent', 'foo')
+            .append('child', 'bar').to('parent', 'foos');
 
         expect(graph.getParent('child', 'bar', 'parent')).to.equal('foos');
 
@@ -57,12 +58,12 @@ describe('Graph with a one to many relationship', () => {
 
     it('can remove a relationship', () => {
         graph
-            .set('child', 'bar').to('parent', 'foo')
-            .set('child', 'baz').to('parent', 'foo')
-            .set('child', 'bazz').to('parent', 'foo')
+            .append('child', 'bar').to('parent', 'foo')
+            .append('child', 'baz').to('parent', 'foo')
+            .append('child', 'bazz').to('parent', 'foo')
             .remove('child', 'baz').from('parent', 'foo');
 
-        expect(graph.getParent('child', 'baz', 'parent')).to.equal(null);
+        expect(graph.getParent('child', 'baz', 'parent')).to.be.undefined;
         expect(graph.getChildren('parent', 'foo', 'child')).to.have.members(['bar', 'bazz']);
     });
 });

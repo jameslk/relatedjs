@@ -2,6 +2,7 @@ import {expect} from 'chai';
 import sinon from 'sinon';
 
 import {Schema, Graph} from '../../lib';
+import {inspectGraph} from '../support/inspect';
 
 describe('Graph with many to many relationships', () => {
     let schemas;
@@ -31,11 +32,11 @@ describe('Graph with many to many relationships', () => {
         expect(graph.getChildren('type2', 'bar', 'type1')).to.have.members(['foo']);
     });
 
-    it('appends the relationship with subsequent sets', () => {
+    it('can append relationships', () => {
         graph
-            .set('type2', 'bar').to('type1', 'foo')
-            .set('type2', 'baz').to('type1', 'foo')
-            .set('type1', 'foos').to('type2', 'baz');
+            .append('type2', 'bar').to('type1', 'foo')
+            .append('type2', 'baz').to('type1', 'foo')
+            .append('type1', 'foos').to('type2', 'baz');
 
         expect(graph.getChildren('type1', 'foo', 'type2')).to.have.members(['bar', 'baz']);
         expect(graph.getChildren('type1', 'foos', 'type2')).to.have.members(['baz']);

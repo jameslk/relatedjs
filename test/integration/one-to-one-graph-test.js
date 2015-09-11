@@ -2,6 +2,7 @@ import {expect} from 'chai';
 import sinon from 'sinon';
 
 import {Schema, Graph} from '../../lib';
+import {inspectGraph} from '../support/inspect';
 
 describe('Graph with a one-to-one relationship', () => {
     let schemas;
@@ -16,9 +17,9 @@ describe('Graph with a one-to-one relationship', () => {
         graph = new Graph(schemas);
     });
 
-    it('provides null for a missing relationship', () => {
-        expect(graph.getParent('child', 'bar', 'parent')).to.equal(null);
-        expect(graph.getChild('parent', 'foo', 'child')).to.equal(null);
+    it('provides undefined for a missing relationship', () => {
+        expect(graph.getParent('child', 'bar', 'parent')).to.be.undefined;
+        expect(graph.getChild('parent', 'foo', 'child')).to.be.undefined;
     });
 
     it('can set a relationship', () => {
@@ -33,7 +34,7 @@ describe('Graph with a one-to-one relationship', () => {
             .set('child', 'bar').to('parent', 'foo')
             .set('child', 'baz').to('parent', 'foo');
 
-        expect(graph.getParent('child', 'bar', 'parent')).to.equal(null);
+        expect(graph.getParent('child', 'bar', 'parent')).to.be.undefined;
 
         expect(graph.getParent('child', 'baz', 'parent')).to.equal('foo');
         expect(graph.getChild('parent', 'foo', 'child')).to.equal('baz');
@@ -44,8 +45,8 @@ describe('Graph with a one-to-one relationship', () => {
             .set('child', 'bar').to('parent', 'foo')
             .remove('child', 'bar').from('parent', 'foo');
 
-        expect(graph.getParent('child', 'bar', 'parent')).to.equal(null);
-        expect(graph.getChild('parent', 'foo', 'child')).to.equal(null);
+        expect(graph.getParent('child', 'bar', 'parent')).to.be.undefined;
+        expect(graph.getChild('parent', 'foo', 'child')).to.be.undefined;
     });
 
     //it('can remove all relationships using a specific a key', () => {
@@ -53,7 +54,7 @@ describe('Graph with a one-to-one relationship', () => {
     //        .set('child', 'bar').to('parent', 'foo')
     //        .removeUsage('child', 'bar');
     //
-    //    expect(graph.getParent('child', 'bar', 'parent')).to.equal(null);
-    //    expect(graph.getChild('parent', 'foo', 'child')).to.equal(null);
+    //    expect(graph.getParent('child', 'bar', 'parent')).to.be.undefined;
+    //    expect(graph.getChild('parent', 'foo', 'child')).to.be.undefined;
     //});
 });
