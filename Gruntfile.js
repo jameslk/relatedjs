@@ -4,7 +4,8 @@ module.exports = function(grunt) {
     grunt.initConfig({
         babel: {
             options: {
-                sourceMap: 'inline'
+                sourceMap: 'inline',
+                optional: ['runtime']
             },
 
             build: {

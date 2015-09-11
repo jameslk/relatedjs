@@ -8,59 +8,117 @@ describe('Graph with mixed relationships', () => {
     let schemas;
     let graph;
 
-    beforeEach(() => {
-        schemas = [
-            Schema.define('parentWithChild')
-                .hasOne('child'),
+    describe('using various parent/child schemas', () => {
+        beforeEach(() => {
+            schemas = [
+                Schema.define('parentWithChild')
+                    .hasOne('child'),
 
-            Schema.define('parentWithChildren')
-                .hasMany('child'),
+                Schema.define('parentWithChildren')
+                    .hasMany('child'),
 
-            Schema.define('child')
-                .belongsTo('parentWithChild')
-                .belongsTo('parentWithChildren')
-        ];
+                Schema.define('child')
+                    .belongsTo('parentWithChild')
+                    .belongsTo('parentWithChildren')
+            ];
 
-        graph = new Graph(schemas);
+            graph = new Graph(schemas);
+        });
+
+        it('can append relationships', () => {
+            graph
+                .appendTo('parentWithChild', 'foo', 'child', 'bar')
+                .appendTo('parentWithChild', 'foo', 'child', 'baz')
+                .appendTo('parentWithChildren', 'foos', 'child', 'bar')
+                .appendTo('parentWithChildren', 'foos', 'child', 'baz')
+            ;
+
+            expect(graph.getParent('child', 'bar', 'parentWithChild')).to.be.undefined;
+            expect(graph.getParent('child', 'baz', 'parentWithChild')).to.equal('foo');
+            expect(graph.getChild('parentWithChild', 'foo', 'child')).to.equal('baz');
+
+            expect(graph.getParent('child', 'bar', 'parentWithChildren')).to.equal('foos');
+            expect(graph.getChildren('parentWithChildren', 'foos', 'child')).to.have.members(['bar', 'baz']);
+        });
+
+        it('can remove a relationship', () => {
+            graph
+                .setTo('parentWithChild', 'foo', 'child', 'bar')
+                .appendTo('parentWithChildren', 'foos', 'child', 'bar')
+                .appendTo('parentWithChildren', 'foos', 'child', 'baz')
+                .removeFrom('parentWithChildren', 'foos', 'child', 'bar')
+            ;
+
+            expect(graph.getChild('parentWithChild', 'foo', 'child')).to.equal('bar');
+            expect(graph.getChildren('parentWithChildren', 'foos', 'child')).to.have.members(['baz']);
+        });
+
+        it('can remove all relationships using a specific a key', () => {
+            graph
+                .setTo('parentWithChild', 'foo', 'child', 'bar')
+                .appendTo('parentWithChildren', 'foos', 'child', 'bar')
+                .appendTo('parentWithChildren', 'foos', 'child', 'baz')
+                .removeUsage('child', 'bar')
+            ;
+
+            expect(graph.getChild('parentWithChild', 'foo', 'child')).to.be.undefined;
+            expect(graph.getChildren('parentWithChildren', 'foos', 'child')).to.have.members(['baz']);
+        });
     });
 
-    it('can append relationships', () => {
-        graph
-            .appendTo('parentWithChild', 'foo', 'child', 'bar')
-            .appendTo('parentWithChild', 'foo', 'child', 'baz')
-            .appendTo('parentWithChildren', 'foos', 'child', 'bar')
-            .appendTo('parentWithChildren', 'foos', 'child', 'baz')
-        ;
+    describe('using readme example schemas', () => {
+        it('should work as described in the readme', () => {
+            // Model your relationships
 
-        expect(graph.getParent('child', 'bar', 'parentWithChild')).to.be.undefined;
-        expect(graph.getParent('child', 'baz', 'parentWithChild')).to.equal('foo');
-        expect(graph.getChild('parentWithChild', 'foo', 'child')).to.equal('baz');
+            var schemas = [
+                Schema.define('house')
+                    .hasMany('room')
+                    .hasOne('garage')
+                    .hasAndBelongsToMany('person'),
 
-        expect(graph.getParent('child', 'bar', 'parentWithChildren')).to.equal('foos');
-        expect(graph.getChildren('parentWithChildren', 'foos', 'child')).to.have.members(['bar', 'baz']);
-    });
+                Schema.define('room')
+                    .belongsTo('house'),
 
-    it('can remove a relationship', () => {
-        graph
-            .setTo('parentWithChild', 'foo', 'child', 'bar')
-            .appendTo('parentWithChildren', 'foos', 'child', 'bar')
-            .appendTo('parentWithChildren', 'foos', 'child', 'baz')
-            .removeFrom('parentWithChildren', 'foos', 'child', 'bar')
-        ;
+                Schema.define('garage')
+                    .belongsTo('house'),
 
-        expect(graph.getChild('parentWithChild', 'foo', 'child')).to.equal('bar');
-        expect(graph.getChildren('parentWithChildren', 'foos', 'child')).to.have.members(['baz']);
-    });
+                Schema.define('person')
+                    .hasAndBelongsToMany('house')
+            ];
 
-    it('can remove all relationships using a specific a key', () => {
-        graph
-            .setTo('parentWithChild', 'foo', 'child', 'bar')
-            .appendTo('parentWithChildren', 'foos', 'child', 'bar')
-            .appendTo('parentWithChildren', 'foos', 'child', 'baz')
-            .removeUsage('child', 'bar')
-        ;
+            // Create the store for your relationships
 
-        expect(graph.getChild('parentWithChild', 'foo', 'child')).to.be.undefined;
-        expect(graph.getChildren('parentWithChildren', 'foos', 'child')).to.have.members(['baz']);
+            var graph = new Graph(schemas);
+
+            // Define relationships
+
+            graph
+                .append('house', 'boulderEstate').to('person', 'james')
+                .append('house', 'boulderEstate').to('person', 'jane')
+                .append('house', 'beachHouse').to('person', 'jane')
+            ;
+
+            graph
+                .append('room', 'livingroom').to('house', 'boulderEstate')
+                .append('room', 'bedroom').to('house', 'boulderEstate')
+                .append('room', 'bathroom').to('house', 'boulderEstate')
+            ;
+
+            graph.set('garage', 'twoCar').to('house', 'boulderEstate');
+
+            // Retrieve relationships
+
+            let result1 = graph.getChild('house', 'boulderEstate', 'garage');
+            // Result: 'twoCar'
+            expect(result1).to.equal('twoCar');
+
+            let result2 = graph.getChildren('person', 'jane', 'house');
+            // Result: ['boulderEstate', 'beachHouse']
+            expect(result2).to.eql(['boulderEstate', 'beachHouse']);
+
+            let result3 = graph.getParent('room', 'bedroom', 'house');
+            // Result: 'boulderEstate'
+            expect(result3).to.equal('boulderEstate');
+        });
     });
 });

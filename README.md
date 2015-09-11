@@ -37,8 +37,8 @@ import {Schema, Graph} from 'relatedjs';
 
 var schemas = [
     Schema.define('house')
-        .hasMany('rooms'),
-        .hasOne('garage'),
+        .hasMany('room')
+        .hasOne('garage')
         .hasAndBelongsToMany('person'),
 
     Schema.define('room')
