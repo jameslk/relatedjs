@@ -2,19 +2,19 @@ module.exports = function(grunt) {
     require('load-grunt-tasks')(grunt);
 
     grunt.initConfig({
-        babel: {
+        browserify: {
             options: {
-                sourceMap: 'inline',
-                optional: ['runtime']
+                transform: [['babelify', {
+                    optional: ['runtime']
+                }]],
+
+                browserifyOptions: {
+                    standalone: 'relatedjs'
+                }
             },
 
             build: {
-                files: [{
-                    expand: true,
-                    cwd: 'lib',
-                    src: '**/*.js',
-                    dest: 'build/lib'
-                }]
+                files: {'build/lib/index.js': 'lib/index.js'}
             }
         },
 
@@ -42,6 +42,6 @@ module.exports = function(grunt) {
         }
     });
 
-    grunt.registerTask('build', ['clean:build', 'babel']);
+    grunt.registerTask('build', ['clean:build', 'browserify']);
     grunt.registerTask('dist', ['build', 'clean:dist', 'copy:dist']);
 };
