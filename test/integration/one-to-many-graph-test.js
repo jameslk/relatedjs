@@ -66,4 +66,19 @@ describe('Graph with a one to many relationship', () => {
         expect(graph.getParent('child', 'baz', 'parent')).to.be.undefined;
         expect(graph.getChildren('parent', 'foo', 'child')).to.have.members(['bar', 'bazz']);
     });
+
+    it('can remove all relationships using a specific a key', () => {
+        graph
+            .append('child', 'bar').to('parent', 'foo')
+            .append('child', 'baz').to('parent', 'foo')
+            .append('child', 'barz').to('parent', 'foos')
+            .append('child', 'bazz').to('parent', 'foos')
+            .removeUsage('parent', 'foo');
+
+        expect(graph.getChildren('parent', 'foo', 'child')).be.empty;
+        expect(graph.getChildren('parent', 'foos', 'child')).to.have.members(['barz', 'bazz']);
+
+        expect(graph.getParent('child', 'bar', 'parent')).to.be.undefined;
+        expect(graph.getParent('child', 'bazz', 'parent')).to.equal('foos');
+    });
 });

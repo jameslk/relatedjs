@@ -49,12 +49,16 @@ describe('Graph with a one-to-one relationship', () => {
         expect(graph.getChild('parent', 'foo', 'child')).to.be.undefined;
     });
 
-    //it('can remove all relationships using a specific a key', () => {
-    //    graph
-    //        .set('child', 'bar').to('parent', 'foo')
-    //        .removeUsage('child', 'bar');
-    //
-    //    expect(graph.getParent('child', 'bar', 'parent')).to.be.undefined;
-    //    expect(graph.getChild('parent', 'foo', 'child')).to.be.undefined;
-    //});
+    it('can remove all relationships using a specific a key', () => {
+        graph
+            .set('child', 'bar').to('parent', 'foo')
+            .set('child', 'foo').to('parent', 'bar')
+            .removeUsage('child', 'bar');
+
+        expect(graph.getParent('child', 'bar', 'parent')).to.be.undefined;
+        expect(graph.getChild('parent', 'foo', 'child')).to.be.undefined;
+
+        expect(graph.getParent('child', 'foo', 'parent')).to.equal('bar');
+        expect(graph.getChild('parent', 'bar', 'child')).to.equal('foo');
+    });
 });
