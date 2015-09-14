@@ -59,14 +59,12 @@ var graph = new Graph(schemas);
 
 graph
     .append('house', 'boulderEstate').to('person', 'james')
-    .append('house', 'boulderEstate').to('person', 'jane')
-    .append('house', 'beachHouse').to('person', 'jane')
+    .append('house', 'boulderEstate', 'beachHouse').to('person', 'jane')
 ;
 
 graph
-    .append('room', 'livingroom').to('house', 'boulderEstate')
-    .append('room', 'bedroom').to('house', 'boulderEstate')
-    .append('room', 'bathroom').to('house', 'boulderEstate')
+    .append('house', 'boulderEstate')
+    .to('room', 'livingroom', 'bedroom', 'bathroom')
 ;
 
 graph.set('garage', 'twoCar').to('house', 'boulderEstate');

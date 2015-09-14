@@ -36,7 +36,8 @@ describe('Graph with a one to many relationship', () => {
     it('can append relationships', () => {
         graph
             .append('child', 'bar').to('parent', 'foo')
-            .append('child', 'baz').to('parent', 'foo');
+            .append('child', 'baz').to('parent', 'foo')
+        ;
 
         expect(graph.getParent('child', 'bar', 'parent')).to.equal('foo');
         expect(graph.getParent('child', 'baz', 'parent')).to.equal('foo');
@@ -46,7 +47,8 @@ describe('Graph with a one to many relationship', () => {
     it('overwrites the relationship with subsequent appends to a different parent', () => {
         graph
             .append('child', 'bar').to('parent', 'foo')
-            .append('child', 'bar').to('parent', 'foos');
+            .append('child', 'bar').to('parent', 'foos')
+        ;
 
         expect(graph.getParent('child', 'bar', 'parent')).to.equal('foos');
 
@@ -61,7 +63,8 @@ describe('Graph with a one to many relationship', () => {
             .append('child', 'bar').to('parent', 'foo')
             .append('child', 'baz').to('parent', 'foo')
             .append('child', 'bazz').to('parent', 'foo')
-            .remove('child', 'baz').from('parent', 'foo');
+            .remove('child', 'baz').from('parent', 'foo')
+        ;
 
         expect(graph.getParent('child', 'baz', 'parent')).to.be.undefined;
         expect(graph.getChildren('parent', 'foo', 'child')).to.have.members(['bar', 'bazz']);
@@ -73,12 +76,44 @@ describe('Graph with a one to many relationship', () => {
             .append('child', 'baz').to('parent', 'foo')
             .append('child', 'barz').to('parent', 'foos')
             .append('child', 'bazz').to('parent', 'foos')
-            .removeUsage('parent', 'foo');
+            .removeUsage('parent', 'foo')
+        ;
 
         expect(graph.getChildren('parent', 'foo', 'child')).be.empty;
         expect(graph.getChildren('parent', 'foos', 'child')).to.have.members(['barz', 'bazz']);
 
         expect(graph.getParent('child', 'bar', 'parent')).to.be.undefined;
         expect(graph.getParent('child', 'bazz', 'parent')).to.equal('foos');
+    });
+
+    it('can set multiple relationships', () => {
+        graph.set('parent', 'foo').to('child', 'bar', 'baz');
+
+        expect(graph.getChildren('parent', 'foo', 'child')).to.have.members(['bar', 'baz']);
+        expect(graph.getParent('child', 'bar', 'parent')).to.equal('foo');
+        expect(graph.getParent('child', 'baz', 'parent')).to.equal('foo');
+    });
+
+    it('can append multiple relationships', () => {
+        graph
+            .set('parent', 'foo').to('child', 'bar')
+            .append('parent', 'foo').to('child', 'baz', 'barz')
+        ;
+
+        expect(graph.getChildren('parent', 'foo', 'child')).to.have.members(['bar', 'baz', 'barz']);
+        expect(graph.getParent('child', 'bar', 'parent')).to.equal('foo');
+        expect(graph.getParent('child', 'baz', 'parent')).to.equal('foo');
+        expect(graph.getParent('child', 'barz', 'parent')).to.equal('foo');
+    });
+
+    it('can remove multiple relationships', () => {
+        graph
+            .set('parent', 'foo').to('child', 'bar', 'baz', 'barz')
+            .remove('parent', 'foo').from('child', 'baz', 'barz')
+        ;
+
+        expect(graph.getChildren('parent', 'foo', 'child')).to.have.members(['bar']);
+        expect(graph.getParent('child', 'baz', 'parent')).to.be.undefined;
+        expect(graph.getParent('child', 'barz', 'parent')).to.be.undefined;
     });
 });

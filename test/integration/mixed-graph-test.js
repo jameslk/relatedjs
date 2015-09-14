@@ -27,10 +27,8 @@ describe('Graph with mixed relationships', () => {
 
         it('can append relationships', () => {
             graph
-                .appendTo('parentWithChild', 'foo', 'child', 'bar')
-                .appendTo('parentWithChild', 'foo', 'child', 'baz')
-                .appendTo('parentWithChildren', 'foos', 'child', 'bar')
-                .appendTo('parentWithChildren', 'foos', 'child', 'baz')
+                .append('parentWithChild', 'foo').to('child', 'bar', 'baz')
+                .append('parentWithChildren', 'foos').to('child', 'bar', 'baz')
             ;
 
             expect(graph.getParent('child', 'bar', 'parentWithChild')).to.be.undefined;
@@ -43,9 +41,8 @@ describe('Graph with mixed relationships', () => {
 
         it('can remove a relationship', () => {
             graph
-                .setTo('parentWithChild', 'foo', 'child', 'bar')
-                .appendTo('parentWithChildren', 'foos', 'child', 'bar')
-                .appendTo('parentWithChildren', 'foos', 'child', 'baz')
+                .set('parentWithChild', 'foo').to('child', 'bar')
+                .set('parentWithChildren', 'foos').to('child', 'bar', 'baz')
                 .removeFrom('parentWithChildren', 'foos', 'child', 'bar')
             ;
 
@@ -94,14 +91,12 @@ describe('Graph with mixed relationships', () => {
 
             graph
                 .append('house', 'boulderEstate').to('person', 'james')
-                .append('house', 'boulderEstate').to('person', 'jane')
-                .append('house', 'beachHouse').to('person', 'jane')
+                .append('house', 'boulderEstate', 'beachHouse').to('person', 'jane')
             ;
 
             graph
-                .append('room', 'livingroom').to('house', 'boulderEstate')
-                .append('room', 'bedroom').to('house', 'boulderEstate')
-                .append('room', 'bathroom').to('house', 'boulderEstate')
+                .append('house', 'boulderEstate')
+                .to('room', 'livingroom', 'bedroom', 'bathroom')
             ;
 
             graph.set('garage', 'twoCar').to('house', 'boulderEstate');

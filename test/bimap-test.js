@@ -60,13 +60,13 @@ describe('Bimap', () => {
 
     it('can append a key to a value', () => {
         bimap.set('apple', 'triangle');
-        bimap.appendKeyToValue('triangle', 'circle');
-        bimap.appendKeyToValue('triangle', 'heart');
+        bimap.appendKeyToValue('orange', 'triangle');
+        bimap.appendKeyToValue('lemon', 'triangle');
 
         expect(keyValues('apple')).to.eql(['triangle']);
-        expect(valueKeys('triangle')).to.eql(['apple', 'circle', 'heart']);
-        expect(keyValues('circle')).to.eql(['triangle']);
-        expect(keyValues('heart')).to.eql(['triangle']);
+        expect(valueKeys('triangle')).to.eql(['apple', 'orange', 'lemon']);
+        expect(keyValues('orange')).to.eql(['triangle']);
+        expect(keyValues('lemon')).to.eql(['triangle']);
     });
 
     it('can get values for a key', () => {
@@ -83,6 +83,14 @@ describe('Bimap', () => {
         bimap.append('heart', 'triangle');
 
         expect(valueKeys('triangle')).to.eql(['apple', 'circle', 'heart']);
+    });
+
+    it('can check if a key-value relationship exists', () => {
+        expect(bimap.has('apple', 'square')).to.be.false;
+
+        bimap.append('apple', 'square');
+
+        expect(bimap.has('apple', 'square')).to.be.true;
     });
 
     it('can remove a key to a value', () => {
@@ -132,6 +140,14 @@ describe('Bimap', () => {
 
         expect(valueKeys('triangle')).to.eql(['apple', 'orange']);
         expect(valueKeys('circle')).to.be.undefined;
+    });
+
+    it('verifies a key-value relationship exists before removal', () => {
+        bimap.set('apple', 'square');
+        bimap.remove('apple', 'triangle');
+
+        expect(keyValues('apple')).to.eql(['square']);
+        expect(valueKeys('square')).to.eql(['apple']);
     });
 
     it('can convert to a literal object', () => {

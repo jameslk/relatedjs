@@ -80,4 +80,64 @@ describe('Graph with many to many relationships', () => {
         expect(graph.getChildren('type1', 'foos', 'type2')).to.be.have.members(['foosz']);
         expect(graph.getChildren('type2', 'foosz', 'type1')).to.have.members(['foos']);
     });
+
+    it('can remove all relationships between two node types', () => {
+        schemas = [
+            Schema.define('type1').hasAndBelongsToMany('type2'),
+            Schema.define('type2').hasAndBelongsToMany('type1'),
+
+            Schema.define('type3').hasAndBelongsToMany('type4'),
+            Schema.define('type4').hasAndBelongsToMany('type3')
+        ];
+
+        graph = new Graph(schemas);
+
+        graph
+            .appendTo('type1', 'foo', 'type2', 'bar')
+            .appendTo('type1', 'foo', 'type2', 'baz')
+            .appendTo('type3', 'foo', 'type4', 'bar')
+            .appendTo('type3', 'foo', 'type4', 'baz')
+            .removeAllBetween('type2', 'type1')
+        ;
+
+        expect(graph.getChildren('type1', 'foo', 'type2')).to.be.empty;
+        expect(graph.getChildren('type3', 'foo', 'type4')).to.have.members(['bar', 'baz']);
+    });
+
+    it('can set multiple relationships', () => {
+        graph.set('type1', 'foo', 'foo2').to('type2', 'bar', 'baz');
+
+        expect(graph.getChildren('type1', 'foo', 'type2')).to.have.members(['bar', 'baz']);
+        expect(graph.getChildren('type1', 'foo2', 'type2')).to.have.members(['bar', 'baz']);
+        expect(graph.getChildren('type2', 'bar', 'type1')).to.have.members(['foo', 'foo2']);
+        expect(graph.getChildren('type2', 'baz', 'type1')).to.have.members(['foo', 'foo2']);
+    });
+
+    it('can append multiple relationships', () => {
+        graph
+            .set('type1', 'foo', 'foo2').to('type2', 'bar', 'baz')
+            .append('type1', 'foo', 'foo3').to('type2', 'baz', 'barz')
+        ;
+
+        expect(graph.getChildren('type1', 'foo', 'type2')).to.have.members(['bar', 'baz', 'barz']);
+        expect(graph.getChildren('type1', 'foo2', 'type2')).to.have.members(['bar', 'baz']);
+        expect(graph.getChildren('type1', 'foo3', 'type2')).to.have.members(['baz', 'barz']);
+        expect(graph.getChildren('type2', 'bar', 'type1')).to.have.members(['foo', 'foo2']);
+        expect(graph.getChildren('type2', 'baz', 'type1')).to.have.members(['foo', 'foo2', 'foo3']);
+        expect(graph.getChildren('type2', 'barz', 'type1')).to.have.members(['foo', 'foo3']);
+    });
+
+    it('can remove multiple relationships', () => {
+        graph
+            .set('type1', 'foo', 'foo2', 'foo3').to('type2', 'bar', 'baz', 'barz')
+            .remove('type1', 'foo', 'foo3').from('type2', 'baz', 'barz')
+        ;
+
+        expect(graph.getChildren('type1', 'foo', 'type2')).to.have.members(['bar']);
+        expect(graph.getChildren('type1', 'foo2', 'type2')).to.have.members(['bar', 'baz', 'barz']);
+        expect(graph.getChildren('type1', 'foo3', 'type2')).to.have.members(['bar']);
+        expect(graph.getChildren('type2', 'bar', 'type1')).to.have.members(['foo', 'foo2', 'foo3']);
+        expect(graph.getChildren('type2', 'baz', 'type1')).to.have.members(['foo2']);
+        expect(graph.getChildren('type2', 'barz', 'type1')).to.have.members(['foo2']);
+    });
 });
