@@ -32,7 +32,7 @@ import {Schema, Graph} from 'relatedjs';
 
 ## Quick start
 
-### Model your relationships
+**Model your relationships**
 
 ```javascript
 var schemas = [
@@ -50,14 +50,15 @@ var schemas = [
     Schema.define('person')
         .hasAndBelongsToMany('house')
 ];
+```
 
-### Create the store for your relationships
+**Create the store for your relationships**
 
 ```javascript
 var graph = new Graph(schemas);
 ```
 
-### Define relationships
+**Define relationships**
 
 ```javascript
 graph
@@ -73,7 +74,7 @@ graph
 graph.set('garage', 'twoCar').to('house', 'boulderEstate');
 ```
 
-### Retrieve relationships
+**Retrieve relationships**
 
 ```javascript
 graph.getChild('house', 'boulderEstate', 'garage');
@@ -86,7 +87,7 @@ graph.getParent('room', 'bedroom', 'house');
 // Result: 'boulderEstate'
 ```
 
-### Merge graphs
+**Merge graphs**
 
 ```javascript
 var graph2 = new Graph(schemas);
