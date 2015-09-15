@@ -17,6 +17,8 @@ var _Set = require("babel-runtime/core-js/set")["default"];
 
 var _getIterator = require("babel-runtime/core-js/get-iterator")["default"];
 
+var _regeneratorRuntime = require("babel-runtime/regenerator")["default"];
+
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
@@ -46,7 +48,7 @@ var Bimap = (function () {
         }
     }, {
         key: "appendKeyToValue",
-        value: function appendKeyToValue(value, key) {
+        value: function appendKeyToValue(key, value) {
             this._removeLinksToKey(key);
             this._appendValueLinkTo(value, key);
             this._setKeyLinkTo(key, value);
@@ -60,8 +62,10 @@ var Bimap = (function () {
     }, {
         key: "remove",
         value: function remove(key, value) {
-            this._removeKeyLinkTo(key, value);
-            this._removeValueLinkTo(value, key);
+            if (this.has(key, value)) {
+                this._removeKeyLinkTo(key, value);
+                this._removeValueLinkTo(value, key);
+            }
         }
     }, {
         key: "removeKey",
@@ -84,6 +88,11 @@ var Bimap = (function () {
         key: "getValueKeys",
         value: function getValueKeys(value) {
             return this._values.get(value);
+        }
+    }, {
+        key: "has",
+        value: function has(key, value) {
+            return this._keys.has(key) && this._keys.get(key).has(value);
         }
     }, {
         key: "toLiteral",
@@ -216,6 +225,283 @@ var Bimap = (function () {
                 }
             }
         }
+    }], [{
+        key: "merge",
+        value: function merge(bimap1, bimap2) {
+            var resultBimap = new this();
+
+            resultBimap._keys = this._mergeMapSets([new _Map(), bimap1._keys, bimap2._keys]);
+
+            resultBimap._values = this._mergeMapSets([new _Map(), bimap1._values, bimap2._values]);
+
+            return resultBimap;
+        }
+    }, {
+        key: "replace",
+        value: function replace(bimap1, bimap2) {
+            var resultBimap = new this();
+
+            var excludedKeyValues = new _Set(bimap2._values.keys());
+            var excludedValueKeys = new _Set(bimap2._keys.keys());
+
+            resultBimap._values = this._mergeMapSets([this._newFilteredMapSet(bimap1._values, excludedKeyValues, excludedValueKeys), bimap2._values]);
+
+            resultBimap._keys = this._mergeMapSets([this._newFilteredMapSet(bimap1._keys, excludedValueKeys, excludedKeyValues), bimap2._keys]);
+
+            return resultBimap;
+        }
+    }, {
+        key: "mergeKeysReplaceValues",
+        value: function mergeKeysReplaceValues(bimap1, bimap2) {
+            var resultBimap = new this();
+
+            var excludedKeyValues = new _Set(bimap2._values.keys());
+
+            resultBimap._values = this._mergeMapSets([this._newFilteredMapSet(bimap1._values, excludedKeyValues), bimap2._values]);
+
+            var excludedValueKeys = new _Set(_regeneratorRuntime.mark(function callee$2$0() {
+                var _iteratorNormalCompletion3, _didIteratorError3, _iteratorError3, _iterator3, _step3, valueKeys;
+
+                return _regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
+                    while (1) switch (context$3$0.prev = context$3$0.next) {
+                        case 0:
+                            _iteratorNormalCompletion3 = true;
+                            _didIteratorError3 = false;
+                            _iteratorError3 = undefined;
+                            context$3$0.prev = 3;
+                            _iterator3 = _getIterator(bimap2._values);
+
+                        case 5:
+                            if (_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done) {
+                                context$3$0.next = 11;
+                                break;
+                            }
+
+                            valueKeys = _step3.value;
+                            return context$3$0.delegateYield(valueKeys, "t0", 8);
+
+                        case 8:
+                            _iteratorNormalCompletion3 = true;
+                            context$3$0.next = 5;
+                            break;
+
+                        case 11:
+                            context$3$0.next = 17;
+                            break;
+
+                        case 13:
+                            context$3$0.prev = 13;
+                            context$3$0.t1 = context$3$0["catch"](3);
+                            _didIteratorError3 = true;
+                            _iteratorError3 = context$3$0.t1;
+
+                        case 17:
+                            context$3$0.prev = 17;
+                            context$3$0.prev = 18;
+
+                            if (!_iteratorNormalCompletion3 && _iterator3["return"]) {
+                                _iterator3["return"]();
+                            }
+
+                        case 20:
+                            context$3$0.prev = 20;
+
+                            if (!_didIteratorError3) {
+                                context$3$0.next = 23;
+                                break;
+                            }
+
+                            throw _iteratorError3;
+
+                        case 23:
+                            return context$3$0.finish(20);
+
+                        case 24:
+                            return context$3$0.finish(17);
+
+                        case 25:
+                        case "end":
+                            return context$3$0.stop();
+                    }
+                }, callee$2$0, this, [[3, 13, 17, 25], [18,, 20, 24]]);
+            })());
+
+            resultBimap._keys = this._mergeMapSets([this._newFilteredMapSet(bimap1._keys, null, excludedValueKeys), bimap2._keys]);
+
+            return resultBimap;
+        }
+    }, {
+        key: "replaceKeysMergeValues",
+        value: function replaceKeysMergeValues(bimap1, bimap2) {
+            var resultBimap = new this();
+
+            var excludedValueKeys = new _Set(bimap2._keys.keys());
+
+            resultBimap._keys = this._mergeMapSets([this._newFilteredMapSet(bimap1._keys, excludedValueKeys), bimap2._keys]);
+
+            var excludedKeyValues = new _Set(_regeneratorRuntime.mark(function callee$2$0() {
+                var _iteratorNormalCompletion4, _didIteratorError4, _iteratorError4, _iterator4, _step4, keyValues;
+
+                return _regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
+                    while (1) switch (context$3$0.prev = context$3$0.next) {
+                        case 0:
+                            _iteratorNormalCompletion4 = true;
+                            _didIteratorError4 = false;
+                            _iteratorError4 = undefined;
+                            context$3$0.prev = 3;
+                            _iterator4 = _getIterator(bimap2._keys);
+
+                        case 5:
+                            if (_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done) {
+                                context$3$0.next = 11;
+                                break;
+                            }
+
+                            keyValues = _step4.value;
+                            return context$3$0.delegateYield(keyValues, "t0", 8);
+
+                        case 8:
+                            _iteratorNormalCompletion4 = true;
+                            context$3$0.next = 5;
+                            break;
+
+                        case 11:
+                            context$3$0.next = 17;
+                            break;
+
+                        case 13:
+                            context$3$0.prev = 13;
+                            context$3$0.t1 = context$3$0["catch"](3);
+                            _didIteratorError4 = true;
+                            _iteratorError4 = context$3$0.t1;
+
+                        case 17:
+                            context$3$0.prev = 17;
+                            context$3$0.prev = 18;
+
+                            if (!_iteratorNormalCompletion4 && _iterator4["return"]) {
+                                _iterator4["return"]();
+                            }
+
+                        case 20:
+                            context$3$0.prev = 20;
+
+                            if (!_didIteratorError4) {
+                                context$3$0.next = 23;
+                                break;
+                            }
+
+                            throw _iteratorError4;
+
+                        case 23:
+                            return context$3$0.finish(20);
+
+                        case 24:
+                            return context$3$0.finish(17);
+
+                        case 25:
+                        case "end":
+                            return context$3$0.stop();
+                    }
+                }, callee$2$0, this, [[3, 13, 17, 25], [18,, 20, 24]]);
+            })());
+
+            resultBimap._values = this._mergeMapSets([this._newFilteredMapSet(bimap1._values, null, excludedKeyValues), bimap2._values]);
+
+            return resultBimap;
+        }
+    }, {
+        key: "_mergeMapSets",
+        value: function _mergeMapSets(mapSets) {
+            var mergeSets = function mergeSets(set1, set2) {
+                return new _Set(_regeneratorRuntime.mark(function callee$3$0() {
+                    return _regeneratorRuntime.wrap(function callee$3$0$(context$4$0) {
+                        while (1) switch (context$4$0.prev = context$4$0.next) {
+                            case 0:
+                                return context$4$0.delegateYield(set1, "t0", 1);
+
+                            case 1:
+                                return context$4$0.delegateYield(set2, "t1", 2);
+
+                            case 2:
+                            case "end":
+                                return context$4$0.stop();
+                        }
+                    }, callee$3$0, this);
+                })());
+            };
+
+            return mapSets.reduce(function (resultMapSet, mapSet) {
+                mapSet.forEach(function (values, key) {
+                    var currentValues = resultMapSet.get(key);
+
+                    if (currentValues) {
+                        resultMapSet.set(key, mergeSets(currentValues, values));
+                    } else {
+                        resultMapSet.set(key, values);
+                    }
+                });
+
+                return resultMapSet;
+            });
+        }
+    }, {
+        key: "_newFilteredMapSet",
+        value: function _newFilteredMapSet(mapSet) {
+            var excludedKeySet = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+            var excludedValueSet = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+
+            var resultMapSet = new _Map();
+
+            mapSet.forEach(function (values, key) {
+                if (excludedKeySet && excludedKeySet.has(key)) {
+                    return;
+                }
+
+                var filteredValues = undefined;
+
+                if (excludedValueSet) {
+                    filteredValues = new _Set();
+
+                    var _iteratorNormalCompletion5 = true;
+                    var _didIteratorError5 = false;
+                    var _iteratorError5 = undefined;
+
+                    try {
+                        for (var _iterator5 = _getIterator(values), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                            var value = _step5.value;
+
+                            if (!excludedValueSet.has(value)) {
+                                filteredValues.add(value);
+                            }
+                        }
+                    } catch (err) {
+                        _didIteratorError5 = true;
+                        _iteratorError5 = err;
+                    } finally {
+                        try {
+                            if (!_iteratorNormalCompletion5 && _iterator5["return"]) {
+                                _iterator5["return"]();
+                            }
+                        } finally {
+                            if (_didIteratorError5) {
+                                throw _iteratorError5;
+                            }
+                        }
+                    }
+                } else {
+                    filteredValues = new _Set(values);
+                }
+
+                if (!filteredValues.size) {
+                    return;
+                }
+
+                resultMapSet.set(key, filteredValues);
+            });
+
+            return resultMapSet;
+        }
     }]);
 
     return Bimap;
@@ -224,7 +510,7 @@ var Bimap = (function () {
 exports["default"] = Bimap;
 module.exports = exports["default"];
 
-},{"babel-runtime/core-js/array/from":6,"babel-runtime/core-js/get-iterator":7,"babel-runtime/core-js/map":9,"babel-runtime/core-js/set":16,"babel-runtime/helpers/class-call-check":17,"babel-runtime/helpers/create-class":18}],2:[function(require,module,exports){
+},{"babel-runtime/core-js/array/from":6,"babel-runtime/core-js/get-iterator":7,"babel-runtime/core-js/map":9,"babel-runtime/core-js/set":17,"babel-runtime/helpers/class-call-check":20,"babel-runtime/helpers/create-class":21,"babel-runtime/regenerator":115}],2:[function(require,module,exports){
 'use strict';
 
 var _createClass = require('babel-runtime/helpers/create-class')['default'];
@@ -255,6 +541,8 @@ var _bimap = require('./bimap');
 
 var _bimap2 = _interopRequireDefault(_bimap);
 
+var _testSupportInspect = require('../test/support/inspect');
+
 /**
  * Stores relationships between different types of nodes. It requires an
  * `array` of `Schema`s to enforce the validity of relationships and govern how it
@@ -277,6 +565,12 @@ var Graph = (function () {
         try {
             for (var _iterator = _getIterator(schemas), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
                 var schema = _step.value;
+
+                var nodeType = schema.forType;
+
+                if (this._schemaMap.hasOwnProperty(nodeType)) {
+                    throw new Error('Schema for node type ' + nodeType + ' should only be' + ' defined once, but occurs multiple times');
+                }
 
                 this._schemaMap[schema.forType] = schema;
             }
@@ -314,15 +608,15 @@ var Graph = (function () {
         /**
          * Set a node's relationship to another node.
          *
-         * @param toNodeType Type of node.
-         * @param toKey Key of the node.
          * @param fromNodeType Other type of node.
          * @param fromKey Key of the other node.
+         * @param toNodeType Type of node.
+         * @param toKey Key of the node.
          * @returns {Graph}
          */
-        value: function setTo(toNodeType, toKey, fromNodeType, fromKey) {
-            var toFromRelationship = this._lookupRelationship(toNodeType, fromNodeType);
+        value: function setTo(fromNodeType, fromKey, toNodeType, toKey) {
             var fromToRelationship = this._lookupRelationship(fromNodeType, toNodeType);
+            var toFromRelationship = this._lookupRelationship(toNodeType, fromNodeType);
 
             if (!this._isOneToOneRelationship(fromToRelationship, toFromRelationship) && !this._isOneToManyRelationship(fromToRelationship, toFromRelationship) && !this._isManyToManyRelationship(fromToRelationship, toFromRelationship)) {
 
@@ -335,20 +629,200 @@ var Graph = (function () {
         }
 
         /**
+         * Set multiple relationships at once. This will overwrite existing associations
+         * to the specified nodes.
+         *
+         * @param fromNodeType
+         * @param {array} fromKeys
+         * @param toNodeType
+         * @param {array} toKeys
+         * @returns {Graph}
+         */
+    }, {
+        key: 'setMultiple',
+        value: function setMultiple(fromNodeType, fromKeys, toNodeType, toKeys) {
+            if (fromKeys.length === 1 && toKeys.length === 1) {
+                return this.setTo(fromNodeType, fromKeys[0], toNodeType, toKeys[0]);
+            }
+
+            var fromToRelationship = this._lookupRelationship(fromNodeType, toNodeType);
+            var toFromRelationship = this._lookupRelationship(toNodeType, fromNodeType);
+
+            if (this._isOneToOneRelationship(fromToRelationship, toFromRelationship)) {
+                var _iteratorNormalCompletion2 = true;
+                var _didIteratorError2 = false;
+                var _iteratorError2 = undefined;
+
+                try {
+                    for (var _iterator2 = _getIterator(fromKeys), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                        var fromKey = _step2.value;
+                        var _iteratorNormalCompletion3 = true;
+                        var _didIteratorError3 = false;
+                        var _iteratorError3 = undefined;
+
+                        try {
+                            for (var _iterator3 = _getIterator(toKeys), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                                var toKey = _step3.value;
+
+                                this._setRelationship(fromNodeType, fromKey, toNodeType, toKey);
+                            }
+                        } catch (err) {
+                            _didIteratorError3 = true;
+                            _iteratorError3 = err;
+                        } finally {
+                            try {
+                                if (!_iteratorNormalCompletion3 && _iterator3['return']) {
+                                    _iterator3['return']();
+                                }
+                            } finally {
+                                if (_didIteratorError3) {
+                                    throw _iteratorError3;
+                                }
+                            }
+                        }
+                    }
+                } catch (err) {
+                    _didIteratorError2 = true;
+                    _iteratorError2 = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion2 && _iterator2['return']) {
+                            _iterator2['return']();
+                        }
+                    } finally {
+                        if (_didIteratorError2) {
+                            throw _iteratorError2;
+                        }
+                    }
+                }
+            } else if (this._isOneToManyRelationship(fromToRelationship, toFromRelationship)) {
+                this._removeUsagesBetweenTypes(fromNodeType, fromKeys, toNodeType, toKeys);
+
+                var _iteratorNormalCompletion4 = true;
+                var _didIteratorError4 = false;
+                var _iteratorError4 = undefined;
+
+                try {
+                    for (var _iterator4 = _getIterator(fromKeys), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                        var fromKey = _step4.value;
+                        var _iteratorNormalCompletion5 = true;
+                        var _didIteratorError5 = false;
+                        var _iteratorError5 = undefined;
+
+                        try {
+                            for (var _iterator5 = _getIterator(toKeys), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                                var toKey = _step5.value;
+
+                                this._appendOneToManyRelationship(fromNodeType, fromKey, toNodeType, toKey);
+                            }
+                        } catch (err) {
+                            _didIteratorError5 = true;
+                            _iteratorError5 = err;
+                        } finally {
+                            try {
+                                if (!_iteratorNormalCompletion5 && _iterator5['return']) {
+                                    _iterator5['return']();
+                                }
+                            } finally {
+                                if (_didIteratorError5) {
+                                    throw _iteratorError5;
+                                }
+                            }
+                        }
+                    }
+                } catch (err) {
+                    _didIteratorError4 = true;
+                    _iteratorError4 = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion4 && _iterator4['return']) {
+                            _iterator4['return']();
+                        }
+                    } finally {
+                        if (_didIteratorError4) {
+                            throw _iteratorError4;
+                        }
+                    }
+                }
+            } else if (this._isManyToManyRelationship(fromToRelationship, toFromRelationship)) {
+                this._removeUsagesBetweenTypes(fromNodeType, fromKeys, toNodeType, toKeys);
+
+                var _iteratorNormalCompletion6 = true;
+                var _didIteratorError6 = false;
+                var _iteratorError6 = undefined;
+
+                try {
+                    for (var _iterator6 = _getIterator(fromKeys), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+                        var fromKey = _step6.value;
+                        var _iteratorNormalCompletion7 = true;
+                        var _didIteratorError7 = false;
+                        var _iteratorError7 = undefined;
+
+                        try {
+                            for (var _iterator7 = _getIterator(toKeys), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+                                var toKey = _step7.value;
+
+                                this._appendManyToManyRelationship(fromNodeType, fromKey, toNodeType, toKey);
+                            }
+                        } catch (err) {
+                            _didIteratorError7 = true;
+                            _iteratorError7 = err;
+                        } finally {
+                            try {
+                                if (!_iteratorNormalCompletion7 && _iterator7['return']) {
+                                    _iterator7['return']();
+                                }
+                            } finally {
+                                if (_didIteratorError7) {
+                                    throw _iteratorError7;
+                                }
+                            }
+                        }
+                    }
+                } catch (err) {
+                    _didIteratorError6 = true;
+                    _iteratorError6 = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion6 && _iterator6['return']) {
+                            _iterator6['return']();
+                        }
+                    } finally {
+                        if (_didIteratorError6) {
+                            throw _iteratorError6;
+                        }
+                    }
+                }
+            } else {
+                throw new Error('Unknown relationship' + (' from ' + fromNodeType + ' with "' + fromToRelationship + '"') + (' to ' + toNodeType + ' with "' + toFromRelationship + '"'));
+            }
+
+            return this;
+        }
+
+        /**
          * Convenience method for {Graph#setTo}. Use it as:
          *
          * ```
-         * set(nodeType, nodeKey).to(nodeType, nodeKey)
+         * set(nodeType, nodeKey[, nodeKey2, ...]).to(nodeType, nodeKey[, nodeKey2, ...])
          * ```
          */
     }, {
         key: 'set',
-        value: function set(fromNodeType, fromKey) {
+        value: function set(fromNodeType) {
             var _this = this;
 
+            for (var _len = arguments.length, fromKeys = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+                fromKeys[_key - 1] = arguments[_key];
+            }
+
             return {
-                to: function to(toNodeType, toKey) {
-                    return _this.setTo(fromNodeType, fromKey, toNodeType, toKey);
+                to: function to(toNodeType) {
+                    for (var _len2 = arguments.length, toKeys = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+                        toKeys[_key2 - 1] = arguments[_key2];
+                    }
+
+                    return _this.setMultiple(fromNodeType, fromKeys, toNodeType, toKeys);
                 }
             };
         }
@@ -358,17 +832,17 @@ var Graph = (function () {
          * relationship of one-to-many or many-to-many, otherwise it works the same as
          * {Graph#setTo}.
          *
-         * @param toNodeType Type of node.
-         * @param toKey Key of the node.
          * @param fromNodeType Other type of node.
          * @param fromKey Key of the other node.
+         * @param toNodeType Type of node.
+         * @param toKey Key of the node.
          * @returns {Graph}
          */
     }, {
         key: 'appendTo',
-        value: function appendTo(toNodeType, toKey, fromNodeType, fromKey) {
-            var toFromRelationship = this._lookupRelationship(toNodeType, fromNodeType);
+        value: function appendTo(fromNodeType, fromKey, toNodeType, toKey) {
             var fromToRelationship = this._lookupRelationship(fromNodeType, toNodeType);
+            var toFromRelationship = this._lookupRelationship(toNodeType, fromNodeType);
 
             if (this._isOneToOneRelationship(fromToRelationship, toFromRelationship)) {
                 this._setRelationship(fromNodeType, fromKey, toNodeType, toKey);
@@ -387,17 +861,72 @@ var Graph = (function () {
          * Convenience method for {Graph#appendTo}. Use it as:
          *
          * ```
-         * append(nodeType, nodeKey).to(nodeType, nodeKey)
+         * append(nodeType, nodeKey[, nodeKey2, ...]).to(nodeType, nodeKey[, nodeKey2, ...])
          * ```
          */
     }, {
         key: 'append',
-        value: function append(fromNodeType, fromKey) {
+        value: function append(fromNodeType) {
             var _this2 = this;
 
+            for (var _len3 = arguments.length, fromKeys = Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
+                fromKeys[_key3 - 1] = arguments[_key3];
+            }
+
             return {
-                to: function to(toNodeType, toKey) {
-                    return _this2.appendTo(toNodeType, toKey, fromNodeType, fromKey);
+                to: function to(toNodeType) {
+                    for (var _len4 = arguments.length, toKeys = Array(_len4 > 1 ? _len4 - 1 : 0), _key4 = 1; _key4 < _len4; _key4++) {
+                        toKeys[_key4 - 1] = arguments[_key4];
+                    }
+
+                    var _iteratorNormalCompletion8 = true;
+                    var _didIteratorError8 = false;
+                    var _iteratorError8 = undefined;
+
+                    try {
+                        for (var _iterator8 = _getIterator(fromKeys), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+                            var fromKey = _step8.value;
+                            var _iteratorNormalCompletion9 = true;
+                            var _didIteratorError9 = false;
+                            var _iteratorError9 = undefined;
+
+                            try {
+                                for (var _iterator9 = _getIterator(toKeys), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+                                    var toKey = _step9.value;
+
+                                    _this2.appendTo(fromNodeType, fromKey, toNodeType, toKey);
+                                }
+                            } catch (err) {
+                                _didIteratorError9 = true;
+                                _iteratorError9 = err;
+                            } finally {
+                                try {
+                                    if (!_iteratorNormalCompletion9 && _iterator9['return']) {
+                                        _iterator9['return']();
+                                    }
+                                } finally {
+                                    if (_didIteratorError9) {
+                                        throw _iteratorError9;
+                                    }
+                                }
+                            }
+                        }
+                    } catch (err) {
+                        _didIteratorError8 = true;
+                        _iteratorError8 = err;
+                    } finally {
+                        try {
+                            if (!_iteratorNormalCompletion8 && _iterator8['return']) {
+                                _iterator8['return']();
+                            }
+                        } finally {
+                            if (_didIteratorError8) {
+                                throw _iteratorError8;
+                            }
+                        }
+                    }
+
+                    return _this2;
                 }
             };
         }
@@ -405,24 +934,24 @@ var Graph = (function () {
         /**
          * Removes a relationship between two nodes.
          *
-         * @param fromNodeType Type of node.
-         * @param fromKey Key of the node.
          * @param ofNodeType Other type of node.
          * @param ofKey Key of the other node.
+         * @param fromNodeType Type of node.
+         * @param fromKey Key of the node.
          * @returns {Graph}
          */
     }, {
         key: 'removeFrom',
-        value: function removeFrom(fromNodeType, fromKey, ofNodeType, ofKey) {
-            var fromToRelationship = this._lookupRelationship(fromNodeType, ofNodeType);
-            var toFromRelationship = this._lookupRelationship(ofNodeType, fromNodeType);
+        value: function removeFrom(ofNodeType, ofKey, fromNodeType, fromKey) {
+            var fromToRelationship = this._lookupRelationship(ofNodeType, fromNodeType);
+            var toFromRelationship = this._lookupRelationship(fromNodeType, ofNodeType);
 
             if (!this._isOneToOneRelationship(fromToRelationship, toFromRelationship) && !this._isOneToManyRelationship(fromToRelationship, toFromRelationship) && !this._isManyToManyRelationship(fromToRelationship, toFromRelationship)) {
 
                 throw new Error('Unknown relationship' + (' from ' + fromNodeType + ' with "' + fromToRelationship + '"') + (' to ' + toNodeType + ' with "' + toFromRelationship + '"'));
             }
 
-            this._removeRelationship(fromNodeType, fromKey, ofNodeType, ofKey);
+            this._removeRelationship(ofNodeType, ofKey, fromNodeType, fromKey);
 
             return this;
         }
@@ -431,19 +960,90 @@ var Graph = (function () {
          * Convenience method for {Graph#removeFrom}. Use it as:
          *
          * ```
-         * remove(nodeType, nodeKey).from(nodeType, nodeKey)
+         * remove(nodeType, nodeKey[, nodeKey2, ...]).from(nodeType, nodeKey[, nodeKey2, ...])
          * ```
          */
     }, {
         key: 'remove',
-        value: function remove(ofNodeType, ofKey) {
+        value: function remove(ofNodeType) {
             var _this3 = this;
 
+            for (var _len5 = arguments.length, ofKeys = Array(_len5 > 1 ? _len5 - 1 : 0), _key5 = 1; _key5 < _len5; _key5++) {
+                ofKeys[_key5 - 1] = arguments[_key5];
+            }
+
             return {
-                from: function from(fromNodeType, fromKey) {
-                    return _this3.removeFrom(fromNodeType, fromKey, ofNodeType, ofKey);
+                from: function from(fromNodeType) {
+                    for (var _len6 = arguments.length, fromKeys = Array(_len6 > 1 ? _len6 - 1 : 0), _key6 = 1; _key6 < _len6; _key6++) {
+                        fromKeys[_key6 - 1] = arguments[_key6];
+                    }
+
+                    var _iteratorNormalCompletion10 = true;
+                    var _didIteratorError10 = false;
+                    var _iteratorError10 = undefined;
+
+                    try {
+                        for (var _iterator10 = _getIterator(ofKeys), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
+                            var ofKey = _step10.value;
+                            var _iteratorNormalCompletion11 = true;
+                            var _didIteratorError11 = false;
+                            var _iteratorError11 = undefined;
+
+                            try {
+                                for (var _iterator11 = _getIterator(fromKeys), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
+                                    var fromKey = _step11.value;
+
+                                    _this3.removeFrom(ofNodeType, ofKey, fromNodeType, fromKey);
+                                }
+                            } catch (err) {
+                                _didIteratorError11 = true;
+                                _iteratorError11 = err;
+                            } finally {
+                                try {
+                                    if (!_iteratorNormalCompletion11 && _iterator11['return']) {
+                                        _iterator11['return']();
+                                    }
+                                } finally {
+                                    if (_didIteratorError11) {
+                                        throw _iteratorError11;
+                                    }
+                                }
+                            }
+                        }
+                    } catch (err) {
+                        _didIteratorError10 = true;
+                        _iteratorError10 = err;
+                    } finally {
+                        try {
+                            if (!_iteratorNormalCompletion10 && _iterator10['return']) {
+                                _iterator10['return']();
+                            }
+                        } finally {
+                            if (_didIteratorError10) {
+                                throw _iteratorError10;
+                            }
+                        }
+                    }
+
+                    return _this3;
                 }
             };
+        }
+
+        /**
+         * Removes all relationships between two node types.
+         *
+         * @param fromNodeType Type of node.
+         * @param toNodeType Type of node.
+         */
+    }, {
+        key: 'removeAllBetween',
+        value: function removeAllBetween(fromNodeType, toNodeType) {
+            if (this._isPrimaryType(fromNodeType, toNodeType)) {
+                this._graph[fromNodeType][toNodeType] = new _bimap2['default']();
+            } else {
+                this._graph[toNodeType][fromNodeType] = new _bimap2['default']();
+            }
         }
 
         /**
@@ -532,6 +1132,42 @@ var Graph = (function () {
 
             return this._getGraphValues(parentType, childType, parentKey);
         }
+
+        /**
+         * Determines whether `this` graph is compatible with `otherGraph`. They will
+         * be compatible if `this` has matching schemas with `otherGraph`, even if
+         * `otherGraph` has more schemas than `this`. That is, `this` schemas must be a
+         * subset of `otherGraph` schemas.
+         *
+         * This is useful to check if the graphs will be merged together.
+         *
+         * @param {Graph} otherGraph
+         * @returns {boolean}
+         */
+    }, {
+        key: 'canMergeWith',
+        value: function canMergeWith(otherGraph) {
+            var _this5 = this;
+
+            if (!otherGraph || !(otherGraph instanceof this.constructor)) {
+                return false;
+            }
+
+            return _Object$keys(this._schemaMap).every(function (nodeType) {
+                var schema = _this5._schemaMap[nodeType];
+                var otherSchema = otherGraph._schemaMap[nodeType];
+
+                return schema.equals(otherSchema);
+            });
+        }
+
+        /**
+         * Creates a new graph with the relationships of `graphA` merged with `graphB`.
+         *
+         * @param {Graph} graphA
+         * @param {Graph} graphB
+         * @returns {Graph}
+         */
     }, {
         key: '_lookupRelationship',
         value: function _lookupRelationship(fromNodeType, toNodeType) {
@@ -564,10 +1200,20 @@ var Graph = (function () {
         value: function _isManyToManyRelationship(relationship1, relationship2) {
             return relationship1 instanceof _relationships.HasAndBelongsToManyRelationship && relationship2 instanceof _relationships.HasAndBelongsToManyRelationship;
         }
+
+        /**
+         * Determine the primary type, which will be used as the primary index or key
+         * for the graph.
+         */
+    }, {
+        key: '_isPrimaryType',
+        value: function _isPrimaryType(type1, type2) {
+            return type1 > type2;
+        }
     }, {
         key: '_setRelationship',
         value: function _setRelationship(fromType, fromKey, toType, toKey) {
-            if (fromType > toType) {
+            if (this._isPrimaryType(fromType, toType)) {
                 var graph = this._graph[fromType][toType];
                 graph.set(fromKey, toKey);
             } else {
@@ -577,8 +1223,8 @@ var Graph = (function () {
         }
     }, {
         key: '_removeRelationship',
-        value: function _removeRelationship(toType, toKey, fromType, fromKey) {
-            if (fromType > toType) {
+        value: function _removeRelationship(fromType, fromKey, toType, toKey) {
+            if (this._isPrimaryType(fromType, toType)) {
                 var graph = this._graph[fromType][toType];
                 graph.remove(fromKey, toKey);
             } else {
@@ -587,20 +1233,101 @@ var Graph = (function () {
             }
         }
     }, {
-        key: '_appendOneToManyRelationship',
-        value: function _appendOneToManyRelationship(toType, toKey, fromType, fromKey) {
-            if (fromType > toType) {
-                var graph = this._graph[fromType][toType];
-                graph.appendValueToKey(fromKey, toKey);
+        key: '_removeUsagesBetweenTypes',
+        value: function _removeUsagesBetweenTypes(fromType, fromKeys, toType, toKeys) {
+            var fromIsPrimaryType = this._isPrimaryType(fromType, toType);
+
+            var relationships = undefined,
+                keys = undefined,
+                values = undefined;
+
+            if (fromIsPrimaryType) {
+                relationships = this._graph[fromType][toType];
+                keys = fromKeys;
+                values = toKeys;
             } else {
-                var graph = this._graph[toType][fromType];
-                graph.appendKeyToValue(fromKey, toKey);
+                relationships = this._graph[toType][fromType];
+                keys = toKeys;
+                values = fromKeys;
+            }
+
+            var _iteratorNormalCompletion12 = true;
+            var _didIteratorError12 = false;
+            var _iteratorError12 = undefined;
+
+            try {
+                for (var _iterator12 = _getIterator(keys), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
+                    var key = _step12.value;
+
+                    relationships.removeKey(key);
+
+                    var _iteratorNormalCompletion13 = true;
+                    var _didIteratorError13 = false;
+                    var _iteratorError13 = undefined;
+
+                    try {
+                        for (var _iterator13 = _getIterator(values), _step13; !(_iteratorNormalCompletion13 = (_step13 = _iterator13.next()).done); _iteratorNormalCompletion13 = true) {
+                            var value = _step13.value;
+
+                            relationships.removeValue(value);
+                        }
+                    } catch (err) {
+                        _didIteratorError13 = true;
+                        _iteratorError13 = err;
+                    } finally {
+                        try {
+                            if (!_iteratorNormalCompletion13 && _iterator13['return']) {
+                                _iterator13['return']();
+                            }
+                        } finally {
+                            if (_didIteratorError13) {
+                                throw _iteratorError13;
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                _didIteratorError12 = true;
+                _iteratorError12 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion12 && _iterator12['return']) {
+                        _iterator12['return']();
+                    }
+                } finally {
+                    if (_didIteratorError12) {
+                        throw _iteratorError12;
+                    }
+                }
+            }
+        }
+    }, {
+        key: '_appendOneToManyRelationship',
+        value: function _appendOneToManyRelationship(fromType, fromKey, toType, toKey) {
+            var graph = this._getGraphFor(fromType, toType);
+            var fromToRelationship = this._lookupRelationship(fromType, toType);
+
+            var fromTypeIsKey = this._isPrimaryType(fromType, toType);
+            var fromTypeIsParent = fromToRelationship instanceof _relationships.HasManyRelationship;
+
+            if (fromTypeIsKey) {
+                if (fromTypeIsParent) {
+                    graph.appendValueToKey(fromKey, toKey);
+                } else {
+                    graph.appendKeyToValue(fromKey, toKey);
+                }
+            } else {
+                if (fromTypeIsParent) {
+                    graph.appendKeyToValue(toKey, fromKey);
+                } else {
+                    graph.appendValueToKey(toKey, fromKey);
+                }
             }
         }
     }, {
         key: '_appendManyToManyRelationship',
-        value: function _appendManyToManyRelationship(toType, toKey, fromType, fromKey) {
-            if (fromType > toType) {
+        value: function _appendManyToManyRelationship(fromType, fromKey, toType, toKey) {
+            if (this._isPrimaryType(fromType, toType)) {
                 var graph = this._graph[fromType][toType];
                 graph.append(fromKey, toKey);
             } else {
@@ -611,24 +1338,24 @@ var Graph = (function () {
     }, {
         key: '_createGraphRelationships',
         value: function _createGraphRelationships() {
-            var _iteratorNormalCompletion2 = true;
-            var _didIteratorError2 = false;
-            var _iteratorError2 = undefined;
+            var _iteratorNormalCompletion14 = true;
+            var _didIteratorError14 = false;
+            var _iteratorError14 = undefined;
 
             try {
-                for (var _iterator2 = _getIterator(this._schemas), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-                    var schema = _step2.value;
+                for (var _iterator14 = _getIterator(this._schemas), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
+                    var schema = _step14.value;
 
                     var fromType = schema.forType;
                     var toTypes = _Object$keys(schema.relationships);
 
-                    var _iteratorNormalCompletion3 = true;
-                    var _didIteratorError3 = false;
-                    var _iteratorError3 = undefined;
+                    var _iteratorNormalCompletion15 = true;
+                    var _didIteratorError15 = false;
+                    var _iteratorError15 = undefined;
 
                     try {
-                        for (var _iterator3 = _getIterator(toTypes), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-                            var toType = _step3.value;
+                        for (var _iterator15 = _getIterator(toTypes), _step15; !(_iteratorNormalCompletion15 = (_step15 = _iterator15.next()).done); _iteratorNormalCompletion15 = true) {
+                            var toType = _step15.value;
 
                             if (this._graph[fromType] && this._graph[fromType][toType]) {
                                 continue; // Bimap already created
@@ -636,38 +1363,38 @@ var Graph = (function () {
 
                             var bimap = new _bimap2['default']();
 
-                            if (fromType > toType) {
+                            if (this._isPrimaryType(fromType, toType)) {
                                 this._mergeGraph(fromType, _defineProperty({}, toType, bimap));
                             } else {
                                 this._mergeGraph(toType, _defineProperty({}, fromType, bimap));
                             }
                         }
                     } catch (err) {
-                        _didIteratorError3 = true;
-                        _iteratorError3 = err;
+                        _didIteratorError15 = true;
+                        _iteratorError15 = err;
                     } finally {
                         try {
-                            if (!_iteratorNormalCompletion3 && _iterator3['return']) {
-                                _iterator3['return']();
+                            if (!_iteratorNormalCompletion15 && _iterator15['return']) {
+                                _iterator15['return']();
                             }
                         } finally {
-                            if (_didIteratorError3) {
-                                throw _iteratorError3;
+                            if (_didIteratorError15) {
+                                throw _iteratorError15;
                             }
                         }
                     }
                 }
             } catch (err) {
-                _didIteratorError2 = true;
-                _iteratorError2 = err;
+                _didIteratorError14 = true;
+                _iteratorError14 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion2 && _iterator2['return']) {
-                        _iterator2['return']();
+                    if (!_iteratorNormalCompletion14 && _iterator14['return']) {
+                        _iterator14['return']();
                     }
                 } finally {
-                    if (_didIteratorError2) {
-                        throw _iteratorError2;
+                    if (_didIteratorError14) {
+                        throw _iteratorError14;
                     }
                 }
             }
@@ -675,7 +1402,7 @@ var Graph = (function () {
     }, {
         key: '_mergeGraph',
         value: function _mergeGraph(forType, object) {
-            if (this._graph[forType]) {
+            if (this._graph.hasOwnProperty(forType)) {
                 _Object$assign(this._graph[forType], object);
             } else {
                 this._graph[forType] = object;
@@ -684,7 +1411,7 @@ var Graph = (function () {
     }, {
         key: '_getGraphFor',
         value: function _getGraphFor(fromType, toType) {
-            if (fromType > toType) {
+            if (this._isPrimaryType(fromType, toType)) {
                 return this._graph[fromType][toType];
             } else {
                 return this._graph[toType][fromType];
@@ -695,7 +1422,7 @@ var Graph = (function () {
         value: function _getGraphValues(fromType, toType, fromKey) {
             var relationships = this._getGraphFor(fromType, toType);
 
-            var values = fromType > toType ? relationships.getKeyValues(fromKey) : relationships.getValueKeys(fromKey);
+            var values = this._isPrimaryType(fromType, toType) ? relationships.getKeyValues(fromKey) : relationships.getValueKeys(fromKey);
 
             return values ? _Array$from(values) : [];
         }
@@ -704,7 +1431,7 @@ var Graph = (function () {
         value: function _getGraphValue(fromType, toType, fromKey) {
             var relationships = this._getGraphFor(fromType, toType);
 
-            var values = fromType > toType ? relationships.getKeyValues(fromKey) : relationships.getValueKeys(fromKey);
+            var values = this._isPrimaryType(fromType, toType) ? relationships.getKeyValues(fromKey) : relationships.getValueKeys(fromKey);
 
             if (!values) {
                 return undefined;
@@ -721,6 +1448,64 @@ var Graph = (function () {
         get: function get() {
             return this._schemas;
         }
+    }], [{
+        key: 'merge',
+        value: function merge(graphA, graphB) {
+            if (!graphA.canMergeWith(graphB)) {
+                throw new Error('Cannot merge graphs due to incompatibilities (most' + ' likely due to incompatible schemas)');
+            }
+
+            return this.mergeCompatibleGraphs(graphA, graphB);
+        }
+
+        /**
+         * Creates a new graph with the relationships of `graphA` merged with `graphB`.
+         * It works exactly the same as {Graph#merge} except it doesn't check whether
+         * both graphs have compatible schemas. This can be a performance boost if you
+         * already know the schemas are compatible.
+         *
+         * Note: Merging incompatible graphs here will result in relationship errors.
+         *
+         * @param {Graph} graphA
+         * @param {Graph} graphB
+         * @returns {Graph}
+         */
+    }, {
+        key: 'mergeCompatibleGraphs',
+        value: function mergeCompatibleGraphs(graphA, graphB) {
+            var resultGraph = new this(graphA._schemas);
+
+            _Object$keys(graphA._graph).forEach(function (primaryType) {
+                _Object$keys(graphA._graph[primaryType]).forEach(function (secondaryType) {
+                    var primaryRelationshipType = graphA._lookupRelationship(primaryType, secondaryType);
+                    var secondaryRelationshipType = graphA._lookupRelationship(secondaryType, primaryType);
+
+                    var relationshipsA = graphA._graph[primaryType][secondaryType];
+                    var relationshipsB = graphB._graph[primaryType][secondaryType];
+                    var mergedRelationships = undefined;
+
+                    if (graphA._isOneToOneRelationship(primaryRelationshipType, secondaryRelationshipType)) {
+                        mergedRelationships = _bimap2['default'].replace(relationshipsA, relationshipsB);
+                    } else if (graphA._isOneToManyRelationship(primaryRelationshipType, secondaryRelationshipType)) {
+                        var primaryTypeIsParent = primaryRelationshipType instanceof _relationships.HasManyRelationship;
+
+                        if (primaryTypeIsParent) {
+                            mergedRelationships = _bimap2['default'].mergeKeysReplaceValues(relationshipsA, relationshipsB);
+                        } else {
+                            mergedRelationships = _bimap2['default'].replaceKeysMergeValues(relationshipsA, relationshipsB);
+                        }
+                    } else if (graphA._isManyToManyRelationship(primaryRelationshipType, secondaryRelationshipType)) {
+                        mergedRelationships = _bimap2['default'].merge(relationshipsA, relationshipsB);
+                    } else {
+                        throw new Error('Unknown relationship' + (' from ' + primaryType + ' with "' + primaryRelationshipType + '"') + (' to ' + secondaryType + ' with "' + secondaryRelationshipType + '"'));
+                    }
+
+                    resultGraph._mergeGraph(primaryType, _defineProperty({}, secondaryType, mergedRelationships));
+                });
+            });
+
+            return resultGraph;
+        }
     }]);
 
     return Graph;
@@ -729,7 +1514,7 @@ var Graph = (function () {
 exports['default'] = Graph;
 module.exports = exports['default'];
 
-},{"./bimap":1,"./relationships":4,"babel-runtime/core-js/array/from":6,"babel-runtime/core-js/get-iterator":7,"babel-runtime/core-js/object/assign":10,"babel-runtime/core-js/object/keys":14,"babel-runtime/helpers/class-call-check":17,"babel-runtime/helpers/create-class":18,"babel-runtime/helpers/define-property":19,"babel-runtime/helpers/interop-require-default":22,"babel-runtime/helpers/sliced-to-array":24}],3:[function(require,module,exports){
+},{"../test/support/inspect":121,"./bimap":1,"./relationships":4,"babel-runtime/core-js/array/from":6,"babel-runtime/core-js/get-iterator":7,"babel-runtime/core-js/object/assign":10,"babel-runtime/core-js/object/keys":14,"babel-runtime/helpers/class-call-check":20,"babel-runtime/helpers/create-class":21,"babel-runtime/helpers/define-property":22,"babel-runtime/helpers/interop-require-default":25,"babel-runtime/helpers/sliced-to-array":27}],3:[function(require,module,exports){
 'use strict';
 
 var _Object$assign = require('babel-runtime/core-js/object/assign')['default'];
@@ -760,12 +1545,14 @@ exports['default'] = _Object$assign({
 }, Relationships);
 module.exports = exports['default'];
 
-},{"./graph":2,"./relationships":4,"./schema":5,"babel-runtime/core-js/object/assign":10,"babel-runtime/helpers/interop-require-default":22,"babel-runtime/helpers/interop-require-wildcard":23}],4:[function(require,module,exports){
+},{"./graph":2,"./relationships":4,"./schema":5,"babel-runtime/core-js/object/assign":10,"babel-runtime/helpers/interop-require-default":25,"babel-runtime/helpers/interop-require-wildcard":26}],4:[function(require,module,exports){
 /**
  * The relationship types used by `Schema`s and `Graph`s.
  */
 
 'use strict';
+
+var _createClass = require('babel-runtime/helpers/create-class')['default'];
 
 var _classCallCheck = require('babel-runtime/helpers/class-call-check')['default'];
 
@@ -773,18 +1560,35 @@ var _get = require('babel-runtime/helpers/get')['default'];
 
 var _inherits = require('babel-runtime/helpers/inherits')['default'];
 
-var _createClass = require('babel-runtime/helpers/create-class')['default'];
-
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-var Relationship = function Relationship(from, to) {
-    _classCallCheck(this, Relationship);
+var Relationship = (function () {
+    function Relationship(from, to) {
+        _classCallCheck(this, Relationship);
 
-    this.from = from;
-    this.to = to;
-};
+        this.from = from;
+        this.to = to;
+    }
+
+    _createClass(Relationship, [{
+        key: 'equals',
+        value: function equals(otherRelationship) {
+            if (this === otherRelationship) {
+                return true;
+            }
+
+            if (!otherRelationship) {
+                return false;
+            }
+
+            return this.constructor === otherRelationship.constructor && this.from === otherRelationship.from && this.to === otherRelationship.to;
+        }
+    }]);
+
+    return Relationship;
+})();
 
 exports.Relationship = Relationship;
 
@@ -872,12 +1676,14 @@ var HasAndBelongsToManyRelationship = (function (_Relationship4) {
 
 exports.HasAndBelongsToManyRelationship = HasAndBelongsToManyRelationship;
 
-},{"babel-runtime/helpers/class-call-check":17,"babel-runtime/helpers/create-class":18,"babel-runtime/helpers/get":20,"babel-runtime/helpers/inherits":21}],5:[function(require,module,exports){
+},{"babel-runtime/helpers/class-call-check":20,"babel-runtime/helpers/create-class":21,"babel-runtime/helpers/get":23,"babel-runtime/helpers/inherits":24}],5:[function(require,module,exports){
 'use strict';
 
 var _createClass = require('babel-runtime/helpers/create-class')['default'];
 
 var _classCallCheck = require('babel-runtime/helpers/class-call-check')['default'];
+
+var _Object$keys = require('babel-runtime/core-js/object/keys')['default'];
 
 Object.defineProperty(exports, '__esModule', {
     value: true
@@ -966,6 +1772,43 @@ var Schema = (function () {
 
             return this;
         }
+
+        /**
+         * Determines whether `otherSchema` equals `this` schema.
+         *
+         * @param otherSchema
+         */
+    }, {
+        key: 'equals',
+        value: function equals(otherSchema) {
+            var _this = this;
+
+            if (this === otherSchema) {
+                return true;
+            }
+
+            if (!otherSchema) {
+                return false;
+            }
+
+            if (this.forType !== otherSchema.forType) {
+                return false;
+            }
+
+            var relatedNodeTypes = _Object$keys(this.relationships);
+
+            if (relatedNodeTypes.length !== _Object$keys(otherSchema.relationships).length) {
+                return false;
+            }
+
+            return relatedNodeTypes.every(function (nodeType) {
+                if (!otherSchema.relationships.hasOwnProperty(nodeType)) {
+                    return false;
+                }
+
+                return _this.relationships[nodeType].equals(otherSchema.relationships[nodeType]);
+            });
+        }
     }], [{
         key: 'define',
         value: function define(nodeType) {
@@ -979,29 +1822,35 @@ var Schema = (function () {
 exports['default'] = Schema;
 module.exports = exports['default'];
 
-},{"./relationships":4,"babel-runtime/helpers/class-call-check":17,"babel-runtime/helpers/create-class":18}],6:[function(require,module,exports){
+},{"./relationships":4,"babel-runtime/core-js/object/keys":14,"babel-runtime/helpers/class-call-check":20,"babel-runtime/helpers/create-class":21}],6:[function(require,module,exports){
 module.exports = { "default": require("core-js/library/fn/array/from"), __esModule: true };
-},{"core-js/library/fn/array/from":25}],7:[function(require,module,exports){
+},{"core-js/library/fn/array/from":28}],7:[function(require,module,exports){
 module.exports = { "default": require("core-js/library/fn/get-iterator"), __esModule: true };
-},{"core-js/library/fn/get-iterator":26}],8:[function(require,module,exports){
+},{"core-js/library/fn/get-iterator":29}],8:[function(require,module,exports){
 module.exports = { "default": require("core-js/library/fn/is-iterable"), __esModule: true };
-},{"core-js/library/fn/is-iterable":27}],9:[function(require,module,exports){
+},{"core-js/library/fn/is-iterable":30}],9:[function(require,module,exports){
 module.exports = { "default": require("core-js/library/fn/map"), __esModule: true };
-},{"core-js/library/fn/map":28}],10:[function(require,module,exports){
+},{"core-js/library/fn/map":31}],10:[function(require,module,exports){
 module.exports = { "default": require("core-js/library/fn/object/assign"), __esModule: true };
-},{"core-js/library/fn/object/assign":29}],11:[function(require,module,exports){
+},{"core-js/library/fn/object/assign":32}],11:[function(require,module,exports){
 module.exports = { "default": require("core-js/library/fn/object/create"), __esModule: true };
-},{"core-js/library/fn/object/create":30}],12:[function(require,module,exports){
+},{"core-js/library/fn/object/create":33}],12:[function(require,module,exports){
 module.exports = { "default": require("core-js/library/fn/object/define-property"), __esModule: true };
-},{"core-js/library/fn/object/define-property":31}],13:[function(require,module,exports){
+},{"core-js/library/fn/object/define-property":34}],13:[function(require,module,exports){
 module.exports = { "default": require("core-js/library/fn/object/get-own-property-descriptor"), __esModule: true };
-},{"core-js/library/fn/object/get-own-property-descriptor":32}],14:[function(require,module,exports){
+},{"core-js/library/fn/object/get-own-property-descriptor":35}],14:[function(require,module,exports){
 module.exports = { "default": require("core-js/library/fn/object/keys"), __esModule: true };
-},{"core-js/library/fn/object/keys":33}],15:[function(require,module,exports){
+},{"core-js/library/fn/object/keys":36}],15:[function(require,module,exports){
 module.exports = { "default": require("core-js/library/fn/object/set-prototype-of"), __esModule: true };
-},{"core-js/library/fn/object/set-prototype-of":34}],16:[function(require,module,exports){
+},{"core-js/library/fn/object/set-prototype-of":37}],16:[function(require,module,exports){
+module.exports = { "default": require("core-js/library/fn/promise"), __esModule: true };
+},{"core-js/library/fn/promise":38}],17:[function(require,module,exports){
 module.exports = { "default": require("core-js/library/fn/set"), __esModule: true };
-},{"core-js/library/fn/set":35}],17:[function(require,module,exports){
+},{"core-js/library/fn/set":39}],18:[function(require,module,exports){
+module.exports = { "default": require("core-js/library/fn/symbol"), __esModule: true };
+},{"core-js/library/fn/symbol":40}],19:[function(require,module,exports){
+module.exports = { "default": require("core-js/library/fn/symbol/iterator"), __esModule: true };
+},{"core-js/library/fn/symbol/iterator":41}],20:[function(require,module,exports){
 "use strict";
 
 exports["default"] = function (instance, Constructor) {
@@ -1011,7 +1860,7 @@ exports["default"] = function (instance, Constructor) {
 };
 
 exports.__esModule = true;
-},{}],18:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 "use strict";
 
 var _Object$defineProperty = require("babel-runtime/core-js/object/define-property")["default"];
@@ -1036,7 +1885,7 @@ exports["default"] = (function () {
 })();
 
 exports.__esModule = true;
-},{"babel-runtime/core-js/object/define-property":12}],19:[function(require,module,exports){
+},{"babel-runtime/core-js/object/define-property":12}],22:[function(require,module,exports){
 "use strict";
 
 var _Object$defineProperty = require("babel-runtime/core-js/object/define-property")["default"];
@@ -1057,7 +1906,7 @@ exports["default"] = function (obj, key, value) {
 };
 
 exports.__esModule = true;
-},{"babel-runtime/core-js/object/define-property":12}],20:[function(require,module,exports){
+},{"babel-runtime/core-js/object/define-property":12}],23:[function(require,module,exports){
 "use strict";
 
 var _Object$getOwnPropertyDescriptor = require("babel-runtime/core-js/object/get-own-property-descriptor")["default"];
@@ -1102,7 +1951,7 @@ exports["default"] = function get(_x, _x2, _x3) {
 };
 
 exports.__esModule = true;
-},{"babel-runtime/core-js/object/get-own-property-descriptor":13}],21:[function(require,module,exports){
+},{"babel-runtime/core-js/object/get-own-property-descriptor":13}],24:[function(require,module,exports){
 "use strict";
 
 var _Object$create = require("babel-runtime/core-js/object/create")["default"];
@@ -1126,7 +1975,7 @@ exports["default"] = function (subClass, superClass) {
 };
 
 exports.__esModule = true;
-},{"babel-runtime/core-js/object/create":11,"babel-runtime/core-js/object/set-prototype-of":15}],22:[function(require,module,exports){
+},{"babel-runtime/core-js/object/create":11,"babel-runtime/core-js/object/set-prototype-of":15}],25:[function(require,module,exports){
 "use strict";
 
 exports["default"] = function (obj) {
@@ -1136,7 +1985,7 @@ exports["default"] = function (obj) {
 };
 
 exports.__esModule = true;
-},{}],23:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 "use strict";
 
 exports["default"] = function (obj) {
@@ -1157,7 +2006,7 @@ exports["default"] = function (obj) {
 };
 
 exports.__esModule = true;
-},{}],24:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 "use strict";
 
 var _getIterator = require("babel-runtime/core-js/get-iterator")["default"];
@@ -1203,69 +2052,82 @@ exports["default"] = (function () {
 })();
 
 exports.__esModule = true;
-},{"babel-runtime/core-js/get-iterator":7,"babel-runtime/core-js/is-iterable":8}],25:[function(require,module,exports){
+},{"babel-runtime/core-js/get-iterator":7,"babel-runtime/core-js/is-iterable":8}],28:[function(require,module,exports){
 require('../../modules/es6.string.iterator');
 require('../../modules/es6.array.from');
 module.exports = require('../../modules/$.core').Array.from;
-},{"../../modules/$.core":44,"../../modules/es6.array.from":86,"../../modules/es6.string.iterator":95}],26:[function(require,module,exports){
+},{"../../modules/$.core":50,"../../modules/es6.array.from":100,"../../modules/es6.string.iterator":110}],29:[function(require,module,exports){
 require('../modules/web.dom.iterable');
 require('../modules/es6.string.iterator');
 module.exports = require('../modules/core.get-iterator');
-},{"../modules/core.get-iterator":84,"../modules/es6.string.iterator":95,"../modules/web.dom.iterable":98}],27:[function(require,module,exports){
+},{"../modules/core.get-iterator":98,"../modules/es6.string.iterator":110,"../modules/web.dom.iterable":114}],30:[function(require,module,exports){
 require('../modules/web.dom.iterable');
 require('../modules/es6.string.iterator');
 module.exports = require('../modules/core.is-iterable');
-},{"../modules/core.is-iterable":85,"../modules/es6.string.iterator":95,"../modules/web.dom.iterable":98}],28:[function(require,module,exports){
+},{"../modules/core.is-iterable":99,"../modules/es6.string.iterator":110,"../modules/web.dom.iterable":114}],31:[function(require,module,exports){
 require('../modules/es6.object.to-string');
 require('../modules/es6.string.iterator');
 require('../modules/web.dom.iterable');
 require('../modules/es6.map');
 require('../modules/es7.map.to-json');
 module.exports = require('../modules/$.core').Map;
-},{"../modules/$.core":44,"../modules/es6.map":88,"../modules/es6.object.to-string":93,"../modules/es6.string.iterator":95,"../modules/es7.map.to-json":96,"../modules/web.dom.iterable":98}],29:[function(require,module,exports){
+},{"../modules/$.core":50,"../modules/es6.map":102,"../modules/es6.object.to-string":107,"../modules/es6.string.iterator":110,"../modules/es7.map.to-json":112,"../modules/web.dom.iterable":114}],32:[function(require,module,exports){
 require('../../modules/es6.object.assign');
 module.exports = require('../../modules/$.core').Object.assign;
-},{"../../modules/$.core":44,"../../modules/es6.object.assign":89}],30:[function(require,module,exports){
+},{"../../modules/$.core":50,"../../modules/es6.object.assign":103}],33:[function(require,module,exports){
 var $ = require('../../modules/$');
 module.exports = function create(P, D){
   return $.create(P, D);
 };
-},{"../../modules/$":63}],31:[function(require,module,exports){
+},{"../../modules/$":73}],34:[function(require,module,exports){
 var $ = require('../../modules/$');
 module.exports = function defineProperty(it, key, desc){
   return $.setDesc(it, key, desc);
 };
-},{"../../modules/$":63}],32:[function(require,module,exports){
+},{"../../modules/$":73}],35:[function(require,module,exports){
 var $ = require('../../modules/$');
 require('../../modules/es6.object.get-own-property-descriptor');
 module.exports = function getOwnPropertyDescriptor(it, key){
   return $.getDesc(it, key);
 };
-},{"../../modules/$":63,"../../modules/es6.object.get-own-property-descriptor":90}],33:[function(require,module,exports){
+},{"../../modules/$":73,"../../modules/es6.object.get-own-property-descriptor":104}],36:[function(require,module,exports){
 require('../../modules/es6.object.keys');
 module.exports = require('../../modules/$.core').Object.keys;
-},{"../../modules/$.core":44,"../../modules/es6.object.keys":91}],34:[function(require,module,exports){
+},{"../../modules/$.core":50,"../../modules/es6.object.keys":105}],37:[function(require,module,exports){
 require('../../modules/es6.object.set-prototype-of');
 module.exports = require('../../modules/$.core').Object.setPrototypeOf;
-},{"../../modules/$.core":44,"../../modules/es6.object.set-prototype-of":92}],35:[function(require,module,exports){
+},{"../../modules/$.core":50,"../../modules/es6.object.set-prototype-of":106}],38:[function(require,module,exports){
+require('../modules/es6.object.to-string');
+require('../modules/es6.string.iterator');
+require('../modules/web.dom.iterable');
+require('../modules/es6.promise');
+module.exports = require('../modules/$.core').Promise;
+},{"../modules/$.core":50,"../modules/es6.object.to-string":107,"../modules/es6.promise":108,"../modules/es6.string.iterator":110,"../modules/web.dom.iterable":114}],39:[function(require,module,exports){
 require('../modules/es6.object.to-string');
 require('../modules/es6.string.iterator');
 require('../modules/web.dom.iterable');
 require('../modules/es6.set');
 require('../modules/es7.set.to-json');
 module.exports = require('../modules/$.core').Set;
-},{"../modules/$.core":44,"../modules/es6.object.to-string":93,"../modules/es6.set":94,"../modules/es6.string.iterator":95,"../modules/es7.set.to-json":97,"../modules/web.dom.iterable":98}],36:[function(require,module,exports){
+},{"../modules/$.core":50,"../modules/es6.object.to-string":107,"../modules/es6.set":109,"../modules/es6.string.iterator":110,"../modules/es7.set.to-json":113,"../modules/web.dom.iterable":114}],40:[function(require,module,exports){
+require('../../modules/es6.symbol');
+module.exports = require('../../modules/$.core').Symbol;
+},{"../../modules/$.core":50,"../../modules/es6.symbol":111}],41:[function(require,module,exports){
+require('../../modules/es6.string.iterator');
+require('../../modules/web.dom.iterable');
+module.exports = require('../../modules/$.wks')('iterator');
+},{"../../modules/$.wks":96,"../../modules/es6.string.iterator":110,"../../modules/web.dom.iterable":114}],42:[function(require,module,exports){
 module.exports = function(it){
   if(typeof it != 'function')throw TypeError(it + ' is not a function!');
   return it;
 };
-},{}],37:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 var isObject = require('./$.is-object');
 module.exports = function(it){
   if(!isObject(it))throw TypeError(it + ' is not an object!');
   return it;
 };
-},{"./$.is-object":56}],38:[function(require,module,exports){
+},{"./$.is-object":66}],44:[function(require,module,exports){
 // 19.1.2.1 Object.assign(target, source, ...)
 var toObject = require('./$.to-object')
   , IObject  = require('./$.iobject')
@@ -1287,7 +2149,7 @@ module.exports = require('./$.fails')(function(){
   }
   return T;
 } : Object.assign;
-},{"./$.enum-keys":48,"./$.fails":49,"./$.iobject":54,"./$.to-object":79}],39:[function(require,module,exports){
+},{"./$.enum-keys":55,"./$.fails":56,"./$.iobject":64,"./$.to-object":93}],45:[function(require,module,exports){
 // getting tag from 19.1.3.6 Object.prototype.toString()
 var cof = require('./$.cof')
   , TAG = require('./$.wks')('toStringTag')
@@ -1304,13 +2166,13 @@ module.exports = function(it){
     // ES3 arguments fallback
     : (B = cof(O)) == 'Object' && typeof O.callee == 'function' ? 'Arguments' : B;
 };
-},{"./$.cof":40,"./$.wks":82}],40:[function(require,module,exports){
+},{"./$.cof":46,"./$.wks":96}],46:[function(require,module,exports){
 var toString = {}.toString;
 
 module.exports = function(it){
   return toString.call(it).slice(8, -1);
 };
-},{}],41:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 'use strict';
 var $            = require('./$')
   , hide         = require('./$.hide')
@@ -1469,7 +2331,7 @@ module.exports = {
     species(require('./$.core')[NAME]); // for wrapper
   }
 };
-},{"./$":63,"./$.core":44,"./$.ctx":45,"./$.defined":47,"./$.for-of":50,"./$.has":52,"./$.hide":53,"./$.is-object":56,"./$.iter-define":59,"./$.iter-step":61,"./$.mix":65,"./$.species":71,"./$.strict-new":72,"./$.support-desc":74,"./$.uid":80}],42:[function(require,module,exports){
+},{"./$":73,"./$.core":50,"./$.ctx":51,"./$.defined":53,"./$.for-of":57,"./$.has":60,"./$.hide":61,"./$.is-object":66,"./$.iter-define":69,"./$.iter-step":71,"./$.mix":77,"./$.species":84,"./$.strict-new":85,"./$.support-desc":87,"./$.uid":94}],48:[function(require,module,exports){
 // https://github.com/DavidBruant/Map-Set.prototype.toJSON
 var forOf   = require('./$.for-of')
   , classof = require('./$.classof');
@@ -1481,7 +2343,7 @@ module.exports = function(NAME){
     return arr;
   };
 };
-},{"./$.classof":39,"./$.for-of":50}],43:[function(require,module,exports){
+},{"./$.classof":45,"./$.for-of":57}],49:[function(require,module,exports){
 'use strict';
 var $          = require('./$')
   , $def       = require('./$.def')
@@ -1530,10 +2392,10 @@ module.exports = function(NAME, wrapper, methods, common, IS_MAP, IS_WEAK){
 
   return C;
 };
-},{"./$":63,"./$.def":46,"./$.fails":49,"./$.for-of":50,"./$.global":51,"./$.hide":53,"./$.mix":65,"./$.strict-new":72,"./$.support-desc":74,"./$.tag":75}],44:[function(require,module,exports){
+},{"./$":73,"./$.def":52,"./$.fails":56,"./$.for-of":57,"./$.global":59,"./$.hide":61,"./$.mix":77,"./$.strict-new":85,"./$.support-desc":87,"./$.tag":88}],50:[function(require,module,exports){
 var core = module.exports = {};
 if(typeof __e == 'number')__e = core; // eslint-disable-line no-undef
-},{}],45:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 // optional / simple context binding
 var aFunction = require('./$.a-function');
 module.exports = function(fn, that, length){
@@ -1553,7 +2415,7 @@ module.exports = function(fn, that, length){
       return fn.apply(that, arguments);
     };
 };
-},{"./$.a-function":36}],46:[function(require,module,exports){
+},{"./$.a-function":42}],52:[function(require,module,exports){
 var global    = require('./$.global')
   , core      = require('./$.core')
   , PROTOTYPE = 'prototype';
@@ -1601,13 +2463,21 @@ $def.P = 8;  // proto
 $def.B = 16; // bind
 $def.W = 32; // wrap
 module.exports = $def;
-},{"./$.core":44,"./$.global":51}],47:[function(require,module,exports){
+},{"./$.core":50,"./$.global":59}],53:[function(require,module,exports){
 // 7.2.1 RequireObjectCoercible(argument)
 module.exports = function(it){
   if(it == undefined)throw TypeError("Can't call method on  " + it);
   return it;
 };
-},{}],48:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
+var isObject = require('./$.is-object')
+  , document = require('./$.global').document
+  // in old IE typeof document.createElement is 'object'
+  , is = isObject(document) && isObject(document.createElement);
+module.exports = function(it){
+  return is ? document.createElement(it) : {};
+};
+},{"./$.global":59,"./$.is-object":66}],55:[function(require,module,exports){
 // all enumerable object keys, includes symbols
 var $ = require('./$');
 module.exports = function(it){
@@ -1622,7 +2492,7 @@ module.exports = function(it){
   }
   return keys;
 };
-},{"./$":63}],49:[function(require,module,exports){
+},{"./$":73}],56:[function(require,module,exports){
 module.exports = function(exec){
   try {
     return !!exec();
@@ -1630,7 +2500,7 @@ module.exports = function(exec){
     return true;
   }
 };
-},{}],50:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 var ctx         = require('./$.ctx')
   , call        = require('./$.iter-call')
   , isArrayIter = require('./$.is-array-iter')
@@ -1650,18 +2520,39 @@ module.exports = function(iterable, entries, fn, that){
     call(iterator, f, step.value, entries);
   }
 };
-},{"./$.an-object":37,"./$.ctx":45,"./$.is-array-iter":55,"./$.iter-call":57,"./$.to-length":78,"./core.get-iterator-method":83}],51:[function(require,module,exports){
+},{"./$.an-object":43,"./$.ctx":51,"./$.is-array-iter":65,"./$.iter-call":67,"./$.to-length":92,"./core.get-iterator-method":97}],58:[function(require,module,exports){
+// fallback for IE11 buggy Object.getOwnPropertyNames with iframe and window
+var toString  = {}.toString
+  , toIObject = require('./$.to-iobject')
+  , getNames  = require('./$').getNames;
+
+var windowNames = typeof window == 'object' && Object.getOwnPropertyNames
+  ? Object.getOwnPropertyNames(window) : [];
+
+var getWindowNames = function(it){
+  try {
+    return getNames(it);
+  } catch(e){
+    return windowNames.slice();
+  }
+};
+
+module.exports.get = function getOwnPropertyNames(it){
+  if(windowNames && toString.call(it) == '[object Window]')return getWindowNames(it);
+  return getNames(toIObject(it));
+};
+},{"./$":73,"./$.to-iobject":91}],59:[function(require,module,exports){
 // https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
 var UNDEFINED = 'undefined';
 var global = module.exports = typeof window != UNDEFINED && window.Math == Math
   ? window : typeof self != UNDEFINED && self.Math == Math ? self : Function('return this')();
 if(typeof __g == 'number')__g = global; // eslint-disable-line no-undef
-},{}],52:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 var hasOwnProperty = {}.hasOwnProperty;
 module.exports = function(it, key){
   return hasOwnProperty.call(it, key);
 };
-},{}],53:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 var $          = require('./$')
   , createDesc = require('./$.property-desc');
 module.exports = require('./$.support-desc') ? function(object, key, value){
@@ -1670,25 +2561,44 @@ module.exports = require('./$.support-desc') ? function(object, key, value){
   object[key] = value;
   return object;
 };
-},{"./$":63,"./$.property-desc":67,"./$.support-desc":74}],54:[function(require,module,exports){
+},{"./$":73,"./$.property-desc":79,"./$.support-desc":87}],62:[function(require,module,exports){
+module.exports = require('./$.global').document && document.documentElement;
+},{"./$.global":59}],63:[function(require,module,exports){
+// fast apply, http://jsperf.lnkit.com/fast-apply/5
+module.exports = function(fn, args, that){
+  var un = that === undefined;
+  switch(args.length){
+    case 0: return un ? fn()
+                      : fn.call(that);
+    case 1: return un ? fn(args[0])
+                      : fn.call(that, args[0]);
+    case 2: return un ? fn(args[0], args[1])
+                      : fn.call(that, args[0], args[1]);
+    case 3: return un ? fn(args[0], args[1], args[2])
+                      : fn.call(that, args[0], args[1], args[2]);
+    case 4: return un ? fn(args[0], args[1], args[2], args[3])
+                      : fn.call(that, args[0], args[1], args[2], args[3]);
+  } return              fn.apply(that, args);
+};
+},{}],64:[function(require,module,exports){
 // indexed object, fallback for non-array-like ES3 strings
 var cof = require('./$.cof');
 module.exports = 0 in Object('z') ? Object : function(it){
   return cof(it) == 'String' ? it.split('') : Object(it);
 };
-},{"./$.cof":40}],55:[function(require,module,exports){
+},{"./$.cof":46}],65:[function(require,module,exports){
 // check on default Array iterator
 var Iterators = require('./$.iterators')
   , ITERATOR  = require('./$.wks')('iterator');
 module.exports = function(it){
   return (Iterators.Array || Array.prototype[ITERATOR]) === it;
 };
-},{"./$.iterators":62,"./$.wks":82}],56:[function(require,module,exports){
+},{"./$.iterators":72,"./$.wks":96}],66:[function(require,module,exports){
 // http://jsperf.com/core-js-isobject
 module.exports = function(it){
   return it !== null && (typeof it == 'object' || typeof it == 'function');
 };
-},{}],57:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 // call something on iterator step with safe closing on error
 var anObject = require('./$.an-object');
 module.exports = function(iterator, fn, value, entries){
@@ -1701,7 +2611,7 @@ module.exports = function(iterator, fn, value, entries){
     throw e;
   }
 };
-},{"./$.an-object":37}],58:[function(require,module,exports){
+},{"./$.an-object":43}],68:[function(require,module,exports){
 'use strict';
 var $ = require('./$')
   , IteratorPrototype = {};
@@ -1713,7 +2623,7 @@ module.exports = function(Constructor, NAME, next){
   Constructor.prototype = $.create(IteratorPrototype, {next: require('./$.property-desc')(1,next)});
   require('./$.tag')(Constructor, NAME + ' Iterator');
 };
-},{"./$":63,"./$.hide":53,"./$.property-desc":67,"./$.tag":75,"./$.wks":82}],59:[function(require,module,exports){
+},{"./$":73,"./$.hide":61,"./$.property-desc":79,"./$.tag":88,"./$.wks":96}],69:[function(require,module,exports){
 'use strict';
 var LIBRARY         = require('./$.library')
   , $def            = require('./$.def')
@@ -1764,7 +2674,7 @@ module.exports = function(Base, NAME, Constructor, next, DEFAULT, IS_SET, FORCE)
     } else $def($def.P + $def.F * BUGGY, NAME, methods);
   }
 };
-},{"./$":63,"./$.def":46,"./$.has":52,"./$.hide":53,"./$.iter-create":58,"./$.iterators":62,"./$.library":64,"./$.redef":68,"./$.tag":75,"./$.wks":82}],60:[function(require,module,exports){
+},{"./$":73,"./$.def":52,"./$.has":60,"./$.hide":61,"./$.iter-create":68,"./$.iterators":72,"./$.library":75,"./$.redef":80,"./$.tag":88,"./$.wks":96}],70:[function(require,module,exports){
 var SYMBOL_ITERATOR = require('./$.wks')('iterator')
   , SAFE_CLOSING    = false;
 try {
@@ -1784,13 +2694,13 @@ module.exports = function(exec){
   } catch(e){ /* empty */ }
   return safe;
 };
-},{"./$.wks":82}],61:[function(require,module,exports){
+},{"./$.wks":96}],71:[function(require,module,exports){
 module.exports = function(done, value){
   return {value: value, done: !!done};
 };
-},{}],62:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 module.exports = {};
-},{}],63:[function(require,module,exports){
+},{}],73:[function(require,module,exports){
 var $Object = Object;
 module.exports = {
   create:     $Object.create,
@@ -1804,15 +2714,84 @@ module.exports = {
   getSymbols: $Object.getOwnPropertySymbols,
   each:       [].forEach
 };
-},{}],64:[function(require,module,exports){
+},{}],74:[function(require,module,exports){
+var $         = require('./$')
+  , toIObject = require('./$.to-iobject');
+module.exports = function(object, el){
+  var O      = toIObject(object)
+    , keys   = $.getKeys(O)
+    , length = keys.length
+    , index  = 0
+    , key;
+  while(length > index)if(O[key = keys[index++]] === el)return key;
+};
+},{"./$":73,"./$.to-iobject":91}],75:[function(require,module,exports){
 module.exports = true;
-},{}],65:[function(require,module,exports){
+},{}],76:[function(require,module,exports){
+var global    = require('./$.global')
+  , macrotask = require('./$.task').set
+  , Observer  = global.MutationObserver || global.WebKitMutationObserver
+  , process   = global.process
+  , isNode    = require('./$.cof')(process) == 'process'
+  , head, last, notify;
+
+var flush = function(){
+  var parent, domain;
+  if(isNode && (parent = process.domain)){
+    process.domain = null;
+    parent.exit();
+  }
+  while(head){
+    domain = head.domain;
+    if(domain)domain.enter();
+    head.fn.call(); // <- currently we use it only for Promise - try / catch not required
+    if(domain)domain.exit();
+    head = head.next;
+  } last = undefined;
+  if(parent)parent.enter();
+}
+
+// Node.js
+if(isNode){
+  notify = function(){
+    process.nextTick(flush);
+  };
+// browsers with MutationObserver
+} else if(Observer){
+  var toggle = 1
+    , node   = document.createTextNode('');
+  new Observer(flush).observe(node, {characterData: true}); // eslint-disable-line no-new
+  notify = function(){
+    node.data = toggle = -toggle;
+  };
+// for other environments - macrotask based on:
+// - setImmediate
+// - MessageChannel
+// - window.postMessag
+// - onreadystatechange
+// - setTimeout
+} else {
+  notify = function(){
+    // strange IE + webpack dev server bug - use .call(global)
+    macrotask.call(global, flush);
+  };
+}
+
+module.exports = function asap(fn){
+  var task = {fn: fn, next: undefined, domain: isNode && process.domain};
+  if(last)last.next = task;
+  if(!head){
+    head = task;
+    notify();
+  } last = task;
+};
+},{"./$.cof":46,"./$.global":59,"./$.task":89}],77:[function(require,module,exports){
 var $redef = require('./$.redef');
 module.exports = function(target, src){
   for(var key in src)$redef(target, key, src[key]);
   return target;
 };
-},{"./$.redef":68}],66:[function(require,module,exports){
+},{"./$.redef":80}],78:[function(require,module,exports){
 // most Object methods by ES6 should accept primitives
 module.exports = function(KEY, exec){
   var $def = require('./$.def')
@@ -1821,7 +2800,7 @@ module.exports = function(KEY, exec){
   exp[KEY] = exec(fn);
   $def($def.S + $def.F * require('./$.fails')(function(){ fn(1); }), 'Object', exp);
 };
-},{"./$.core":44,"./$.def":46,"./$.fails":49}],67:[function(require,module,exports){
+},{"./$.core":50,"./$.def":52,"./$.fails":56}],79:[function(require,module,exports){
 module.exports = function(bitmap, value){
   return {
     enumerable  : !(bitmap & 1),
@@ -1830,9 +2809,13 @@ module.exports = function(bitmap, value){
     value       : value
   };
 };
-},{}],68:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 module.exports = require('./$.hide');
-},{"./$.hide":53}],69:[function(require,module,exports){
+},{"./$.hide":61}],81:[function(require,module,exports){
+module.exports = Object.is || function is(x, y){
+  return x === y ? x !== 0 || 1 / x === 1 / y : x != x && y != y;
+};
+},{}],82:[function(require,module,exports){
 // Works with __proto__ only. Old v8 can't work with null proto objects.
 /* eslint-disable no-proto */
 var getDesc  = require('./$').getDesc
@@ -1859,14 +2842,14 @@ module.exports = {
     : undefined),
   check: check
 };
-},{"./$":63,"./$.an-object":37,"./$.ctx":45,"./$.is-object":56}],70:[function(require,module,exports){
+},{"./$":73,"./$.an-object":43,"./$.ctx":51,"./$.is-object":66}],83:[function(require,module,exports){
 var global = require('./$.global')
   , SHARED = '__core-js_shared__'
   , store  = global[SHARED] || (global[SHARED] = {});
 module.exports = function(key){
   return store[key] || (store[key] = {});
 };
-},{"./$.global":51}],71:[function(require,module,exports){
+},{"./$.global":59}],84:[function(require,module,exports){
 'use strict';
 var $       = require('./$')
   , SPECIES = require('./$.wks')('species');
@@ -1876,12 +2859,12 @@ module.exports = function(C){
     get: function(){ return this; }
   });
 };
-},{"./$":63,"./$.support-desc":74,"./$.wks":82}],72:[function(require,module,exports){
+},{"./$":73,"./$.support-desc":87,"./$.wks":96}],85:[function(require,module,exports){
 module.exports = function(it, Constructor, name){
   if(!(it instanceof Constructor))throw TypeError(name + ": use the 'new' operator!");
   return it;
 };
-},{}],73:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 // true  -> String#at
 // false -> String#codePointAt
 var toInteger = require('./$.to-integer')
@@ -1900,12 +2883,12 @@ module.exports = function(TO_STRING){
         : TO_STRING ? s.slice(i, i + 2) : (a - 0xd800 << 10) + (b - 0xdc00) + 0x10000;
   };
 };
-},{"./$.defined":47,"./$.to-integer":76}],74:[function(require,module,exports){
+},{"./$.defined":53,"./$.to-integer":90}],87:[function(require,module,exports){
 // Thank's IE8 for his funny defineProperty
 module.exports = !require('./$.fails')(function(){
   return Object.defineProperty({}, 'a', {get: function(){ return 7; }}).a != 7;
 });
-},{"./$.fails":49}],75:[function(require,module,exports){
+},{"./$.fails":56}],88:[function(require,module,exports){
 var has  = require('./$.has')
   , hide = require('./$.hide')
   , TAG  = require('./$.wks')('toStringTag');
@@ -1913,56 +2896,133 @@ var has  = require('./$.has')
 module.exports = function(it, tag, stat){
   if(it && !has(it = stat ? it : it.prototype, TAG))hide(it, TAG, tag);
 };
-},{"./$.has":52,"./$.hide":53,"./$.wks":82}],76:[function(require,module,exports){
+},{"./$.has":60,"./$.hide":61,"./$.wks":96}],89:[function(require,module,exports){
+'use strict';
+var ctx                = require('./$.ctx')
+  , invoke             = require('./$.invoke')
+  , html               = require('./$.html')
+  , cel                = require('./$.dom-create')
+  , global             = require('./$.global')
+  , process            = global.process
+  , setTask            = global.setImmediate
+  , clearTask          = global.clearImmediate
+  , MessageChannel     = global.MessageChannel
+  , counter            = 0
+  , queue              = {}
+  , ONREADYSTATECHANGE = 'onreadystatechange'
+  , defer, channel, port;
+var run = function(){
+  var id = +this;
+  if(queue.hasOwnProperty(id)){
+    var fn = queue[id];
+    delete queue[id];
+    fn();
+  }
+};
+var listner = function(event){
+  run.call(event.data);
+};
+// Node.js 0.9+ & IE10+ has setImmediate, otherwise:
+if(!setTask || !clearTask){
+  setTask = function setImmediate(fn){
+    var args = [], i = 1;
+    while(arguments.length > i)args.push(arguments[i++]);
+    queue[++counter] = function(){
+      invoke(typeof fn == 'function' ? fn : Function(fn), args);
+    };
+    defer(counter);
+    return counter;
+  };
+  clearTask = function clearImmediate(id){
+    delete queue[id];
+  };
+  // Node.js 0.8-
+  if(require('./$.cof')(process) == 'process'){
+    defer = function(id){
+      process.nextTick(ctx(run, id, 1));
+    };
+  // Browsers with MessageChannel, includes WebWorkers
+  } else if(MessageChannel){
+    channel = new MessageChannel;
+    port    = channel.port2;
+    channel.port1.onmessage = listner;
+    defer = ctx(port.postMessage, port, 1);
+  // Browsers with postMessage, skip WebWorkers
+  // IE8 has postMessage, but it's sync & typeof its postMessage is 'object'
+  } else if(global.addEventListener && typeof postMessage == 'function' && !global.importScript){
+    defer = function(id){
+      global.postMessage(id + '', '*');
+    };
+    global.addEventListener('message', listner, false);
+  // IE8-
+  } else if(ONREADYSTATECHANGE in cel('script')){
+    defer = function(id){
+      html.appendChild(cel('script'))[ONREADYSTATECHANGE] = function(){
+        html.removeChild(this);
+        run.call(id);
+      };
+    };
+  // Rest old browsers
+  } else {
+    defer = function(id){
+      setTimeout(ctx(run, id, 1), 0);
+    };
+  }
+}
+module.exports = {
+  set:   setTask,
+  clear: clearTask
+};
+},{"./$.cof":46,"./$.ctx":51,"./$.dom-create":54,"./$.global":59,"./$.html":62,"./$.invoke":63}],90:[function(require,module,exports){
 // 7.1.4 ToInteger
 var ceil  = Math.ceil
   , floor = Math.floor;
 module.exports = function(it){
   return isNaN(it = +it) ? 0 : (it > 0 ? floor : ceil)(it);
 };
-},{}],77:[function(require,module,exports){
+},{}],91:[function(require,module,exports){
 // to indexed object, toObject with fallback for non-array-like ES3 strings
 var IObject = require('./$.iobject')
   , defined = require('./$.defined');
 module.exports = function(it){
   return IObject(defined(it));
 };
-},{"./$.defined":47,"./$.iobject":54}],78:[function(require,module,exports){
+},{"./$.defined":53,"./$.iobject":64}],92:[function(require,module,exports){
 // 7.1.15 ToLength
 var toInteger = require('./$.to-integer')
   , min       = Math.min;
 module.exports = function(it){
   return it > 0 ? min(toInteger(it), 0x1fffffffffffff) : 0; // pow(2, 53) - 1 == 9007199254740991
 };
-},{"./$.to-integer":76}],79:[function(require,module,exports){
+},{"./$.to-integer":90}],93:[function(require,module,exports){
 // 7.1.13 ToObject(argument)
 var defined = require('./$.defined');
 module.exports = function(it){
   return Object(defined(it));
 };
-},{"./$.defined":47}],80:[function(require,module,exports){
+},{"./$.defined":53}],94:[function(require,module,exports){
 var id = 0
   , px = Math.random();
 module.exports = function(key){
   return 'Symbol('.concat(key === undefined ? '' : key, ')_', (++id + px).toString(36));
 };
-},{}],81:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 module.exports = function(){ /* empty */ };
-},{}],82:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 var store  = require('./$.shared')('wks')
   , Symbol = require('./$.global').Symbol;
 module.exports = function(name){
   return store[name] || (store[name] =
     Symbol && Symbol[name] || (Symbol || require('./$.uid'))('Symbol.' + name));
 };
-},{"./$.global":51,"./$.shared":70,"./$.uid":80}],83:[function(require,module,exports){
+},{"./$.global":59,"./$.shared":83,"./$.uid":94}],97:[function(require,module,exports){
 var classof   = require('./$.classof')
   , ITERATOR  = require('./$.wks')('iterator')
   , Iterators = require('./$.iterators');
 module.exports = require('./$.core').getIteratorMethod = function(it){
   if(it != undefined)return it[ITERATOR] || it['@@iterator'] || Iterators[classof(it)];
 };
-},{"./$.classof":39,"./$.core":44,"./$.iterators":62,"./$.wks":82}],84:[function(require,module,exports){
+},{"./$.classof":45,"./$.core":50,"./$.iterators":72,"./$.wks":96}],98:[function(require,module,exports){
 var anObject = require('./$.an-object')
   , get      = require('./core.get-iterator-method');
 module.exports = require('./$.core').getIterator = function(it){
@@ -1970,7 +3030,7 @@ module.exports = require('./$.core').getIterator = function(it){
   if(typeof iterFn != 'function')throw TypeError(it + ' is not iterable!');
   return anObject(iterFn.call(it));
 };
-},{"./$.an-object":37,"./$.core":44,"./core.get-iterator-method":83}],85:[function(require,module,exports){
+},{"./$.an-object":43,"./$.core":50,"./core.get-iterator-method":97}],99:[function(require,module,exports){
 var classof   = require('./$.classof')
   , ITERATOR  = require('./$.wks')('iterator')
   , Iterators = require('./$.iterators');
@@ -1978,7 +3038,7 @@ module.exports = require('./$.core').isIterable = function(it){
   var O = Object(it);
   return ITERATOR in O || '@@iterator' in O || Iterators.hasOwnProperty(classof(O));
 };
-},{"./$.classof":39,"./$.core":44,"./$.iterators":62,"./$.wks":82}],86:[function(require,module,exports){
+},{"./$.classof":45,"./$.core":50,"./$.iterators":72,"./$.wks":96}],100:[function(require,module,exports){
 'use strict';
 var ctx         = require('./$.ctx')
   , $def        = require('./$.def')
@@ -2012,7 +3072,7 @@ $def($def.S + $def.F * !require('./$.iter-detect')(function(iter){ Array.from(it
     return result;
   }
 });
-},{"./$.ctx":45,"./$.def":46,"./$.is-array-iter":55,"./$.iter-call":57,"./$.iter-detect":60,"./$.to-length":78,"./$.to-object":79,"./core.get-iterator-method":83}],87:[function(require,module,exports){
+},{"./$.ctx":51,"./$.def":52,"./$.is-array-iter":65,"./$.iter-call":67,"./$.iter-detect":70,"./$.to-length":92,"./$.to-object":93,"./core.get-iterator-method":97}],101:[function(require,module,exports){
 'use strict';
 var setUnscope = require('./$.unscope')
   , step       = require('./$.iter-step')
@@ -2047,7 +3107,7 @@ Iterators.Arguments = Iterators.Array;
 setUnscope('keys');
 setUnscope('values');
 setUnscope('entries');
-},{"./$.iter-define":59,"./$.iter-step":61,"./$.iterators":62,"./$.to-iobject":77,"./$.unscope":81}],88:[function(require,module,exports){
+},{"./$.iter-define":69,"./$.iter-step":71,"./$.iterators":72,"./$.to-iobject":91,"./$.unscope":95}],102:[function(require,module,exports){
 'use strict';
 var strong = require('./$.collection-strong');
 
@@ -2065,12 +3125,12 @@ require('./$.collection')('Map', function(get){
     return strong.def(this, key === 0 ? 0 : key, value);
   }
 }, strong, true);
-},{"./$.collection":43,"./$.collection-strong":41}],89:[function(require,module,exports){
+},{"./$.collection":49,"./$.collection-strong":47}],103:[function(require,module,exports){
 // 19.1.3.1 Object.assign(target, source)
 var $def = require('./$.def');
 
 $def($def.S + $def.F, 'Object', {assign: require('./$.assign')});
-},{"./$.assign":38,"./$.def":46}],90:[function(require,module,exports){
+},{"./$.assign":44,"./$.def":52}],104:[function(require,module,exports){
 // 19.1.2.6 Object.getOwnPropertyDescriptor(O, P)
 var toIObject = require('./$.to-iobject');
 
@@ -2079,7 +3139,7 @@ require('./$.object-sap')('getOwnPropertyDescriptor', function($getOwnPropertyDe
     return $getOwnPropertyDescriptor(toIObject(it), key);
   };
 });
-},{"./$.object-sap":66,"./$.to-iobject":77}],91:[function(require,module,exports){
+},{"./$.object-sap":78,"./$.to-iobject":91}],105:[function(require,module,exports){
 // 19.1.2.14 Object.keys(O)
 var toObject = require('./$.to-object');
 
@@ -2088,13 +3148,271 @@ require('./$.object-sap')('keys', function($keys){
     return $keys(toObject(it));
   };
 });
-},{"./$.object-sap":66,"./$.to-object":79}],92:[function(require,module,exports){
+},{"./$.object-sap":78,"./$.to-object":93}],106:[function(require,module,exports){
 // 19.1.3.19 Object.setPrototypeOf(O, proto)
 var $def = require('./$.def');
 $def($def.S, 'Object', {setPrototypeOf: require('./$.set-proto').set});
-},{"./$.def":46,"./$.set-proto":69}],93:[function(require,module,exports){
+},{"./$.def":52,"./$.set-proto":82}],107:[function(require,module,exports){
 
-},{}],94:[function(require,module,exports){
+},{}],108:[function(require,module,exports){
+'use strict';
+var $          = require('./$')
+  , LIBRARY    = require('./$.library')
+  , global     = require('./$.global')
+  , ctx        = require('./$.ctx')
+  , classof    = require('./$.classof')
+  , $def       = require('./$.def')
+  , isObject   = require('./$.is-object')
+  , anObject   = require('./$.an-object')
+  , aFunction  = require('./$.a-function')
+  , strictNew  = require('./$.strict-new')
+  , forOf      = require('./$.for-of')
+  , setProto   = require('./$.set-proto').set
+  , same       = require('./$.same')
+  , species    = require('./$.species')
+  , SPECIES    = require('./$.wks')('species')
+  , RECORD     = require('./$.uid')('record')
+  , asap       = require('./$.microtask')
+  , PROMISE    = 'Promise'
+  , process    = global.process
+  , isNode     = classof(process) == 'process'
+  , P          = global[PROMISE]
+  , Wrapper;
+
+var testResolve = function(sub){
+  var test = new P(function(){});
+  if(sub)test.constructor = Object;
+  return P.resolve(test) === test;
+};
+
+var useNative = function(){
+  var works = false;
+  function P2(x){
+    var self = new P(x);
+    setProto(self, P2.prototype);
+    return self;
+  }
+  try {
+    works = P && P.resolve && testResolve();
+    setProto(P2, P);
+    P2.prototype = $.create(P.prototype, {constructor: {value: P2}});
+    // actual Firefox has broken subclass support, test that
+    if(!(P2.resolve(5).then(function(){}) instanceof P2)){
+      works = false;
+    }
+    // actual V8 bug, https://code.google.com/p/v8/issues/detail?id=4162
+    if(works && require('./$.support-desc')){
+      var thenableThenGotten = false;
+      P.resolve($.setDesc({}, 'then', {
+        get: function(){ thenableThenGotten = true; }
+      }));
+      works = thenableThenGotten;
+    }
+  } catch(e){ works = false; }
+  return works;
+}();
+
+// helpers
+var isPromise = function(it){
+  return isObject(it) && (useNative ? classof(it) == 'Promise' : RECORD in it);
+};
+var sameConstructor = function(a, b){
+  // library wrapper special case
+  if(LIBRARY && a === P && b === Wrapper)return true;
+  return same(a, b);
+};
+var getConstructor = function(C){
+  var S = anObject(C)[SPECIES];
+  return S != undefined ? S : C;
+};
+var isThenable = function(it){
+  var then;
+  return isObject(it) && typeof (then = it.then) == 'function' ? then : false;
+};
+var notify = function(record, isReject){
+  if(record.n)return;
+  record.n = true;
+  var chain = record.c;
+  asap(function(){
+    var value = record.v
+      , ok    = record.s == 1
+      , i     = 0;
+    var run = function(react){
+      var cb = ok ? react.ok : react.fail
+        , ret, then;
+      try {
+        if(cb){
+          if(!ok)record.h = true;
+          ret = cb === true ? value : cb(value);
+          if(ret === react.P){
+            react.rej(TypeError('Promise-chain cycle'));
+          } else if(then = isThenable(ret)){
+            then.call(ret, react.res, react.rej);
+          } else react.res(ret);
+        } else react.rej(value);
+      } catch(err){
+        react.rej(err);
+      }
+    };
+    while(chain.length > i)run(chain[i++]); // variable length - can't use forEach
+    chain.length = 0;
+    record.n = false;
+    if(isReject)setTimeout(function(){
+      if(isUnhandled(record.p)){
+        if(isNode){
+          process.emit('unhandledRejection', value, record.p);
+        } else if(global.console && console.error){
+          console.error('Unhandled promise rejection', value);
+        }
+      } record.a = undefined;
+    }, 1);
+  });
+};
+var isUnhandled = function(promise){
+  var record = promise[RECORD]
+    , chain  = record.a || record.c
+    , i      = 0
+    , react;
+  if(record.h)return false;
+  while(chain.length > i){
+    react = chain[i++];
+    if(react.fail || !isUnhandled(react.P))return false;
+  } return true;
+};
+var $reject = function(value){
+  var record = this;
+  if(record.d)return;
+  record.d = true;
+  record = record.r || record; // unwrap
+  record.v = value;
+  record.s = 2;
+  record.a = record.c.slice();
+  notify(record, true);
+};
+var $resolve = function(value){
+  var record = this
+    , then;
+  if(record.d)return;
+  record.d = true;
+  record = record.r || record; // unwrap
+  try {
+    if(then = isThenable(value)){
+      asap(function(){
+        var wrapper = {r: record, d: false}; // wrap
+        try {
+          then.call(value, ctx($resolve, wrapper, 1), ctx($reject, wrapper, 1));
+        } catch(e){
+          $reject.call(wrapper, e);
+        }
+      });
+    } else {
+      record.v = value;
+      record.s = 1;
+      notify(record, false);
+    }
+  } catch(e){
+    $reject.call({r: record, d: false}, e); // wrap
+  }
+};
+
+// constructor polyfill
+if(!useNative){
+  // 25.4.3.1 Promise(executor)
+  P = function Promise(executor){
+    aFunction(executor);
+    var record = {
+      p: strictNew(this, P, PROMISE),         // <- promise
+      c: [],                                  // <- awaiting reactions
+      a: undefined,                           // <- checked in isUnhandled reactions
+      s: 0,                                   // <- state
+      d: false,                               // <- done
+      v: undefined,                           // <- value
+      h: false,                               // <- handled rejection
+      n: false                                // <- notify
+    };
+    this[RECORD] = record;
+    try {
+      executor(ctx($resolve, record, 1), ctx($reject, record, 1));
+    } catch(err){
+      $reject.call(record, err);
+    }
+  };
+  require('./$.mix')(P.prototype, {
+    // 25.4.5.3 Promise.prototype.then(onFulfilled, onRejected)
+    then: function then(onFulfilled, onRejected){
+      var S = anObject(anObject(this).constructor)[SPECIES];
+      var react = {
+        ok:   typeof onFulfilled == 'function' ? onFulfilled : true,
+        fail: typeof onRejected == 'function'  ? onRejected  : false
+      };
+      var promise = react.P = new (S != undefined ? S : P)(function(res, rej){
+        react.res = aFunction(res);
+        react.rej = aFunction(rej);
+      });
+      var record = this[RECORD];
+      record.c.push(react);
+      if(record.a)record.a.push(react);
+      if(record.s)notify(record, false);
+      return promise;
+    },
+    // 25.4.5.1 Promise.prototype.catch(onRejected)
+    'catch': function(onRejected){
+      return this.then(undefined, onRejected);
+    }
+  });
+}
+
+// export
+$def($def.G + $def.W + $def.F * !useNative, {Promise: P});
+require('./$.tag')(P, PROMISE);
+species(P);
+species(Wrapper = require('./$.core')[PROMISE]);
+
+// statics
+$def($def.S + $def.F * !useNative, PROMISE, {
+  // 25.4.4.5 Promise.reject(r)
+  reject: function reject(r){
+    return new this(function(res, rej){ rej(r); });
+  }
+});
+$def($def.S + $def.F * (!useNative || testResolve(true)), PROMISE, {
+  // 25.4.4.6 Promise.resolve(x)
+  resolve: function resolve(x){
+    return isPromise(x) && sameConstructor(x.constructor, this)
+      ? x : new this(function(res){ res(x); });
+  }
+});
+$def($def.S + $def.F * !(useNative && require('./$.iter-detect')(function(iter){
+  P.all(iter)['catch'](function(){});
+})), PROMISE, {
+  // 25.4.4.1 Promise.all(iterable)
+  all: function all(iterable){
+    var C      = getConstructor(this)
+      , values = [];
+    return new C(function(res, rej){
+      forOf(iterable, false, values.push, values);
+      var remaining = values.length
+        , results   = Array(remaining);
+      if(remaining)$.each.call(values, function(promise, index){
+        C.resolve(promise).then(function(value){
+          results[index] = value;
+          --remaining || res(results);
+        }, rej);
+      });
+      else res(results);
+    });
+  },
+  // 25.4.4.4 Promise.race(iterable)
+  race: function race(iterable){
+    var C = getConstructor(this);
+    return new C(function(res, rej){
+      forOf(iterable, false, function(promise){
+        C.resolve(promise).then(res, rej);
+      });
+    });
+  }
+});
+},{"./$":73,"./$.a-function":42,"./$.an-object":43,"./$.classof":45,"./$.core":50,"./$.ctx":51,"./$.def":52,"./$.for-of":57,"./$.global":59,"./$.is-object":66,"./$.iter-detect":70,"./$.library":75,"./$.microtask":76,"./$.mix":77,"./$.same":81,"./$.set-proto":82,"./$.species":84,"./$.strict-new":85,"./$.support-desc":87,"./$.tag":88,"./$.uid":94,"./$.wks":96}],109:[function(require,module,exports){
 'use strict';
 var strong = require('./$.collection-strong');
 
@@ -2107,7 +3425,7 @@ require('./$.collection')('Set', function(get){
     return strong.def(this, value = value === 0 ? 0 : value, value);
   }
 }, strong);
-},{"./$.collection":43,"./$.collection-strong":41}],95:[function(require,module,exports){
+},{"./$.collection":49,"./$.collection-strong":47}],110:[function(require,module,exports){
 'use strict';
 var $at  = require('./$.string-at')(true);
 
@@ -2125,19 +3443,1637 @@ require('./$.iter-define')(String, 'String', function(iterated){
   this._i += point.length;
   return {value: point, done: false};
 });
-},{"./$.iter-define":59,"./$.string-at":73}],96:[function(require,module,exports){
+},{"./$.iter-define":69,"./$.string-at":86}],111:[function(require,module,exports){
+'use strict';
+// ECMAScript 6 symbols shim
+var $              = require('./$')
+  , global         = require('./$.global')
+  , has            = require('./$.has')
+  , SUPPORT_DESC   = require('./$.support-desc')
+  , $def           = require('./$.def')
+  , $redef         = require('./$.redef')
+  , shared         = require('./$.shared')
+  , setTag         = require('./$.tag')
+  , uid            = require('./$.uid')
+  , wks            = require('./$.wks')
+  , keyOf          = require('./$.keyof')
+  , $names         = require('./$.get-names')
+  , enumKeys       = require('./$.enum-keys')
+  , isObject       = require('./$.is-object')
+  , anObject       = require('./$.an-object')
+  , toIObject      = require('./$.to-iobject')
+  , createDesc     = require('./$.property-desc')
+  , getDesc        = $.getDesc
+  , setDesc        = $.setDesc
+  , _create        = $.create
+  , getNames       = $names.get
+  , $Symbol        = global.Symbol
+  , setter         = false
+  , HIDDEN         = wks('_hidden')
+  , isEnum         = $.isEnum
+  , SymbolRegistry = shared('symbol-registry')
+  , AllSymbols     = shared('symbols')
+  , useNative      = typeof $Symbol == 'function'
+  , ObjectProto    = Object.prototype;
+
+var setSymbolDesc = SUPPORT_DESC ? function(){ // fallback for old Android
+  try {
+    return _create(setDesc({}, HIDDEN, {
+      get: function(){
+        return setDesc(this, HIDDEN, {value: false})[HIDDEN];
+      }
+    }))[HIDDEN] || setDesc;
+  } catch(e){
+    return function(it, key, D){
+      var protoDesc = getDesc(ObjectProto, key);
+      if(protoDesc)delete ObjectProto[key];
+      setDesc(it, key, D);
+      if(protoDesc && it !== ObjectProto)setDesc(ObjectProto, key, protoDesc);
+    };
+  }
+}() : setDesc;
+
+var wrap = function(tag){
+  var sym = AllSymbols[tag] = _create($Symbol.prototype);
+  sym._k = tag;
+  SUPPORT_DESC && setter && setSymbolDesc(ObjectProto, tag, {
+    configurable: true,
+    set: function(value){
+      if(has(this, HIDDEN) && has(this[HIDDEN], tag))this[HIDDEN][tag] = false;
+      setSymbolDesc(this, tag, createDesc(1, value));
+    }
+  });
+  return sym;
+};
+
+var $defineProperty = function defineProperty(it, key, D){
+  if(D && has(AllSymbols, key)){
+    if(!D.enumerable){
+      if(!has(it, HIDDEN))setDesc(it, HIDDEN, createDesc(1, {}));
+      it[HIDDEN][key] = true;
+    } else {
+      if(has(it, HIDDEN) && it[HIDDEN][key])it[HIDDEN][key] = false;
+      D = _create(D, {enumerable: createDesc(0, false)});
+    } return setSymbolDesc(it, key, D);
+  } return setDesc(it, key, D);
+};
+var $defineProperties = function defineProperties(it, P){
+  anObject(it);
+  var keys = enumKeys(P = toIObject(P))
+    , i    = 0
+    , l = keys.length
+    , key;
+  while(l > i)$defineProperty(it, key = keys[i++], P[key]);
+  return it;
+};
+var $create = function create(it, P){
+  return P === undefined ? _create(it) : $defineProperties(_create(it), P);
+};
+var $propertyIsEnumerable = function propertyIsEnumerable(key){
+  var E = isEnum.call(this, key);
+  return E || !has(this, key) || !has(AllSymbols, key) || has(this, HIDDEN) && this[HIDDEN][key]
+    ? E : true;
+};
+var $getOwnPropertyDescriptor = function getOwnPropertyDescriptor(it, key){
+  var D = getDesc(it = toIObject(it), key);
+  if(D && has(AllSymbols, key) && !(has(it, HIDDEN) && it[HIDDEN][key]))D.enumerable = true;
+  return D;
+};
+var $getOwnPropertyNames = function getOwnPropertyNames(it){
+  var names  = getNames(toIObject(it))
+    , result = []
+    , i      = 0
+    , key;
+  while(names.length > i)if(!has(AllSymbols, key = names[i++]) && key != HIDDEN)result.push(key);
+  return result;
+};
+var $getOwnPropertySymbols = function getOwnPropertySymbols(it){
+  var names  = getNames(toIObject(it))
+    , result = []
+    , i      = 0
+    , key;
+  while(names.length > i)if(has(AllSymbols, key = names[i++]))result.push(AllSymbols[key]);
+  return result;
+};
+
+// 19.4.1.1 Symbol([description])
+if(!useNative){
+  $Symbol = function Symbol(){
+    if(this instanceof $Symbol)throw TypeError('Symbol is not a constructor');
+    return wrap(uid(arguments[0]));
+  };
+  $redef($Symbol.prototype, 'toString', function toString(){
+    return this._k;
+  });
+
+  $.create     = $create;
+  $.isEnum     = $propertyIsEnumerable;
+  $.getDesc    = $getOwnPropertyDescriptor;
+  $.setDesc    = $defineProperty;
+  $.setDescs   = $defineProperties;
+  $.getNames   = $names.get = $getOwnPropertyNames;
+  $.getSymbols = $getOwnPropertySymbols;
+
+  if(SUPPORT_DESC && !require('./$.library')){
+    $redef(ObjectProto, 'propertyIsEnumerable', $propertyIsEnumerable, true);
+  }
+}
+
+// MS Edge converts symbol values to JSON as {}
+// WebKit converts symbol values in objects to JSON as null
+if(!useNative || require('./$.fails')(function(){
+  return JSON.stringify([{a: $Symbol()}, [$Symbol()]]) != '[{},[null]]';
+}))$redef($Symbol.prototype, 'toJSON', function toJSON(){
+  if(useNative && isObject(this))return this;
+});
+
+var symbolStatics = {
+  // 19.4.2.1 Symbol.for(key)
+  'for': function(key){
+    return has(SymbolRegistry, key += '')
+      ? SymbolRegistry[key]
+      : SymbolRegistry[key] = $Symbol(key);
+  },
+  // 19.4.2.5 Symbol.keyFor(sym)
+  keyFor: function keyFor(key){
+    return keyOf(SymbolRegistry, key);
+  },
+  useSetter: function(){ setter = true; },
+  useSimple: function(){ setter = false; }
+};
+// 19.4.2.2 Symbol.hasInstance
+// 19.4.2.3 Symbol.isConcatSpreadable
+// 19.4.2.4 Symbol.iterator
+// 19.4.2.6 Symbol.match
+// 19.4.2.8 Symbol.replace
+// 19.4.2.9 Symbol.search
+// 19.4.2.10 Symbol.species
+// 19.4.2.11 Symbol.split
+// 19.4.2.12 Symbol.toPrimitive
+// 19.4.2.13 Symbol.toStringTag
+// 19.4.2.14 Symbol.unscopables
+$.each.call((
+    'hasInstance,isConcatSpreadable,iterator,match,replace,search,' +
+    'species,split,toPrimitive,toStringTag,unscopables'
+  ).split(','), function(it){
+    var sym = wks(it);
+    symbolStatics[it] = useNative ? sym : wrap(sym);
+  }
+);
+
+setter = true;
+
+$def($def.G + $def.W, {Symbol: $Symbol});
+
+$def($def.S, 'Symbol', symbolStatics);
+
+$def($def.S + $def.F * !useNative, 'Object', {
+  // 19.1.2.2 Object.create(O [, Properties])
+  create: $create,
+  // 19.1.2.4 Object.defineProperty(O, P, Attributes)
+  defineProperty: $defineProperty,
+  // 19.1.2.3 Object.defineProperties(O, Properties)
+  defineProperties: $defineProperties,
+  // 19.1.2.6 Object.getOwnPropertyDescriptor(O, P)
+  getOwnPropertyDescriptor: $getOwnPropertyDescriptor,
+  // 19.1.2.7 Object.getOwnPropertyNames(O)
+  getOwnPropertyNames: $getOwnPropertyNames,
+  // 19.1.2.8 Object.getOwnPropertySymbols(O)
+  getOwnPropertySymbols: $getOwnPropertySymbols
+});
+
+// 19.4.3.5 Symbol.prototype[@@toStringTag]
+setTag($Symbol, 'Symbol');
+// 20.2.1.9 Math[@@toStringTag]
+setTag(Math, 'Math', true);
+// 24.3.3 JSON[@@toStringTag]
+setTag(global.JSON, 'JSON', true);
+},{"./$":73,"./$.an-object":43,"./$.def":52,"./$.enum-keys":55,"./$.fails":56,"./$.get-names":58,"./$.global":59,"./$.has":60,"./$.is-object":66,"./$.keyof":74,"./$.library":75,"./$.property-desc":79,"./$.redef":80,"./$.shared":83,"./$.support-desc":87,"./$.tag":88,"./$.to-iobject":91,"./$.uid":94,"./$.wks":96}],112:[function(require,module,exports){
 // https://github.com/DavidBruant/Map-Set.prototype.toJSON
 var $def  = require('./$.def');
 
 $def($def.P, 'Map', {toJSON: require('./$.collection-to-json')('Map')});
-},{"./$.collection-to-json":42,"./$.def":46}],97:[function(require,module,exports){
+},{"./$.collection-to-json":48,"./$.def":52}],113:[function(require,module,exports){
 // https://github.com/DavidBruant/Map-Set.prototype.toJSON
 var $def  = require('./$.def');
 
 $def($def.P, 'Set', {toJSON: require('./$.collection-to-json')('Set')});
-},{"./$.collection-to-json":42,"./$.def":46}],98:[function(require,module,exports){
+},{"./$.collection-to-json":48,"./$.def":52}],114:[function(require,module,exports){
 require('./es6.array.iterator');
 var Iterators = require('./$.iterators');
 Iterators.NodeList = Iterators.HTMLCollection = Iterators.Array;
-},{"./$.iterators":62,"./es6.array.iterator":87}]},{},[3])(3)
+},{"./$.iterators":72,"./es6.array.iterator":101}],115:[function(require,module,exports){
+(function (global){
+// This method of obtaining a reference to the global object needs to be
+// kept identical to the way it is obtained in runtime.js
+var g =
+  typeof global === "object" ? global :
+  typeof window === "object" ? window :
+  typeof self === "object" ? self : this;
+
+// Use `getOwnPropertyNames` because not all browsers support calling
+// `hasOwnProperty` on the global `self` object in a worker. See #183.
+var hadRuntime = g.regeneratorRuntime &&
+  Object.getOwnPropertyNames(g).indexOf("regeneratorRuntime") >= 0;
+
+// Save the old regeneratorRuntime in case it needs to be restored later.
+var oldRuntime = hadRuntime && g.regeneratorRuntime;
+
+// Force reevalutation of runtime.js.
+g.regeneratorRuntime = undefined;
+
+module.exports = require("./runtime");
+
+if (hadRuntime) {
+  // Restore the original runtime.
+  g.regeneratorRuntime = oldRuntime;
+} else {
+  // Remove the global property added by runtime.js.
+  delete g.regeneratorRuntime;
+}
+
+module.exports = { "default": module.exports, __esModule: true };
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./runtime":116}],116:[function(require,module,exports){
+(function (process,global){
+/**
+ * Copyright (c) 2014, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * https://raw.github.com/facebook/regenerator/master/LICENSE file. An
+ * additional grant of patent rights can be found in the PATENTS file in
+ * the same directory.
+ */
+
+"use strict";
+
+var _Symbol = require("babel-runtime/core-js/symbol")["default"];
+
+var _Symbol$iterator = require("babel-runtime/core-js/symbol/iterator")["default"];
+
+var _Object$create = require("babel-runtime/core-js/object/create")["default"];
+
+var _Promise = require("babel-runtime/core-js/promise")["default"];
+
+!(function (global) {
+  "use strict";
+
+  var hasOwn = Object.prototype.hasOwnProperty;
+  var undefined; // More compressible than void 0.
+  var iteratorSymbol = typeof _Symbol === "function" && _Symbol$iterator || "@@iterator";
+
+  var inModule = typeof module === "object";
+  var runtime = global.regeneratorRuntime;
+  if (runtime) {
+    if (inModule) {
+      // If regeneratorRuntime is defined globally and we're in a module,
+      // make the exports object identical to regeneratorRuntime.
+      module.exports = runtime;
+    }
+    // Don't bother evaluating the rest of this file if the runtime was
+    // already defined globally.
+    return;
+  }
+
+  // Define the runtime globally (as expected by generated code) as either
+  // module.exports (if we're in a module) or a new, empty object.
+  runtime = global.regeneratorRuntime = inModule ? module.exports : {};
+
+  function wrap(innerFn, outerFn, self, tryLocsList) {
+    // If outerFn provided, then outerFn.prototype instanceof Generator.
+    var generator = _Object$create((outerFn || Generator).prototype);
+
+    generator._invoke = makeInvokeMethod(innerFn, self || null, new Context(tryLocsList || []));
+
+    return generator;
+  }
+  runtime.wrap = wrap;
+
+  // Try/catch helper to minimize deoptimizations. Returns a completion
+  // record like context.tryEntries[i].completion. This interface could
+  // have been (and was previously) designed to take a closure to be
+  // invoked without arguments, but in all the cases we care about we
+  // already have an existing method we want to call, so there's no need
+  // to create a new function object. We can even get away with assuming
+  // the method takes exactly one argument, since that happens to be true
+  // in every case, so we don't have to touch the arguments object. The
+  // only additional allocation required is the completion record, which
+  // has a stable shape and so hopefully should be cheap to allocate.
+  function tryCatch(fn, obj, arg) {
+    try {
+      return { type: "normal", arg: fn.call(obj, arg) };
+    } catch (err) {
+      return { type: "throw", arg: err };
+    }
+  }
+
+  var GenStateSuspendedStart = "suspendedStart";
+  var GenStateSuspendedYield = "suspendedYield";
+  var GenStateExecuting = "executing";
+  var GenStateCompleted = "completed";
+
+  // Returning this object from the innerFn has the same effect as
+  // breaking out of the dispatch switch statement.
+  var ContinueSentinel = {};
+
+  // Dummy constructor functions that we use as the .constructor and
+  // .constructor.prototype properties for functions that return Generator
+  // objects. For full spec compliance, you may wish to configure your
+  // minifier not to mangle the names of these two functions.
+  function Generator() {}
+  function GeneratorFunction() {}
+  function GeneratorFunctionPrototype() {}
+
+  var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype;
+  GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
+  GeneratorFunctionPrototype.constructor = GeneratorFunction;
+  GeneratorFunction.displayName = "GeneratorFunction";
+
+  // Helper for defining the .next, .throw, and .return methods of the
+  // Iterator interface in terms of a single ._invoke method.
+  function defineIteratorMethods(prototype) {
+    ["next", "throw", "return"].forEach(function (method) {
+      prototype[method] = function (arg) {
+        return this._invoke(method, arg);
+      };
+    });
+  }
+
+  runtime.isGeneratorFunction = function (genFun) {
+    var ctor = typeof genFun === "function" && genFun.constructor;
+    return ctor ? ctor === GeneratorFunction ||
+    // For the native GeneratorFunction constructor, the best we can
+    // do is to check its .name property.
+    (ctor.displayName || ctor.name) === "GeneratorFunction" : false;
+  };
+
+  runtime.mark = function (genFun) {
+    genFun.__proto__ = GeneratorFunctionPrototype;
+    genFun.prototype = _Object$create(Gp);
+    return genFun;
+  };
+
+  // Within the body of any async function, `await x` is transformed to
+  // `yield regeneratorRuntime.awrap(x)`, so that the runtime can test
+  // `value instanceof AwaitArgument` to determine if the yielded value is
+  // meant to be awaited. Some may consider the name of this method too
+  // cutesy, but they are curmudgeons.
+  runtime.awrap = function (arg) {
+    return new AwaitArgument(arg);
+  };
+
+  function AwaitArgument(arg) {
+    this.arg = arg;
+  }
+
+  function AsyncIterator(generator) {
+    // This invoke function is written in a style that assumes some
+    // calling function (or Promise) will handle exceptions.
+    function invoke(method, arg) {
+      var result = generator[method](arg);
+      var value = result.value;
+      return value instanceof AwaitArgument ? _Promise.resolve(value.arg).then(invokeNext, invokeThrow) : _Promise.resolve(value).then(function (unwrapped) {
+        // When a yielded Promise is resolved, its final value becomes
+        // the .value of the Promise<{value,done}> result for the
+        // current iteration. If the Promise is rejected, however, the
+        // result for this iteration will be rejected with the same
+        // reason. Note that rejections of yielded Promises are not
+        // thrown back into the generator function, as is the case
+        // when an awaited Promise is rejected. This difference in
+        // behavior between yield and await is important, because it
+        // allows the consumer to decide what to do with the yielded
+        // rejection (swallow it and continue, manually .throw it back
+        // into the generator, abandon iteration, whatever). With
+        // await, by contrast, there is no opportunity to examine the
+        // rejection reason outside the generator function, so the
+        // only option is to throw it from the await expression, and
+        // let the generator function handle the exception.
+        result.value = unwrapped;
+        return result;
+      });
+    }
+
+    if (typeof process === "object" && process.domain) {
+      invoke = process.domain.bind(invoke);
+    }
+
+    var invokeNext = invoke.bind(generator, "next");
+    var invokeThrow = invoke.bind(generator, "throw");
+    var invokeReturn = invoke.bind(generator, "return");
+    var previousPromise;
+
+    function enqueue(method, arg) {
+      var enqueueResult =
+      // If enqueue has been called before, then we want to wait until
+      // all previous Promises have been resolved before calling invoke,
+      // so that results are always delivered in the correct order. If
+      // enqueue has not been called before, then it is important to
+      // call invoke immediately, without waiting on a callback to fire,
+      // so that the async generator function has the opportunity to do
+      // any necessary setup in a predictable way. This predictability
+      // is why the Promise constructor synchronously invokes its
+      // executor callback, and why async functions synchronously
+      // execute code before the first await. Since we implement simple
+      // async functions in terms of async generators, it is especially
+      // important to get this right, even though it requires care.
+      previousPromise ? previousPromise.then(function () {
+        return invoke(method, arg);
+      }) : new _Promise(function (resolve) {
+        resolve(invoke(method, arg));
+      });
+
+      // Avoid propagating enqueueResult failures to Promises returned by
+      // later invocations of the iterator.
+      previousPromise = enqueueResult["catch"](function (ignored) {});
+
+      return enqueueResult;
+    }
+
+    // Define the unified helper method that is used to implement .next,
+    // .throw, and .return (see defineIteratorMethods).
+    this._invoke = enqueue;
+  }
+
+  defineIteratorMethods(AsyncIterator.prototype);
+
+  // Note that simple async functions are implemented on top of
+  // AsyncIterator objects; they just return a Promise for the value of
+  // the final result produced by the iterator.
+  runtime.async = function (innerFn, outerFn, self, tryLocsList) {
+    var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList));
+
+    return runtime.isGeneratorFunction(outerFn) ? iter // If outerFn is a generator, return the full iterator.
+    : iter.next().then(function (result) {
+      return result.done ? result.value : iter.next();
+    });
+  };
+
+  function makeInvokeMethod(innerFn, self, context) {
+    var state = GenStateSuspendedStart;
+
+    return function invoke(method, arg) {
+      if (state === GenStateExecuting) {
+        throw new Error("Generator is already running");
+      }
+
+      if (state === GenStateCompleted) {
+        if (method === "throw") {
+          throw arg;
+        }
+
+        // Be forgiving, per 25.3.3.3.3 of the spec:
+        // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
+        return doneResult();
+      }
+
+      while (true) {
+        var delegate = context.delegate;
+        if (delegate) {
+          if (method === "return" || method === "throw" && delegate.iterator[method] === undefined) {
+            // A return or throw (when the delegate iterator has no throw
+            // method) always terminates the yield* loop.
+            context.delegate = null;
+
+            // If the delegate iterator has a return method, give it a
+            // chance to clean up.
+            var returnMethod = delegate.iterator["return"];
+            if (returnMethod) {
+              var record = tryCatch(returnMethod, delegate.iterator, arg);
+              if (record.type === "throw") {
+                // If the return method threw an exception, let that
+                // exception prevail over the original return or throw.
+                method = "throw";
+                arg = record.arg;
+                continue;
+              }
+            }
+
+            if (method === "return") {
+              // Continue with the outer return, now that the delegate
+              // iterator has been terminated.
+              continue;
+            }
+          }
+
+          var record = tryCatch(delegate.iterator[method], delegate.iterator, arg);
+
+          if (record.type === "throw") {
+            context.delegate = null;
+
+            // Like returning generator.throw(uncaught), but without the
+            // overhead of an extra function call.
+            method = "throw";
+            arg = record.arg;
+            continue;
+          }
+
+          // Delegate generator ran and handled its own exceptions so
+          // regardless of what the method was, we continue as if it is
+          // "next" with an undefined arg.
+          method = "next";
+          arg = undefined;
+
+          var info = record.arg;
+          if (info.done) {
+            context[delegate.resultName] = info.value;
+            context.next = delegate.nextLoc;
+          } else {
+            state = GenStateSuspendedYield;
+            return info;
+          }
+
+          context.delegate = null;
+        }
+
+        if (method === "next") {
+          if (state === GenStateSuspendedYield) {
+            context.sent = arg;
+          } else {
+            context.sent = undefined;
+          }
+        } else if (method === "throw") {
+          if (state === GenStateSuspendedStart) {
+            state = GenStateCompleted;
+            throw arg;
+          }
+
+          if (context.dispatchException(arg)) {
+            // If the dispatched exception was caught by a catch block,
+            // then let that catch block handle the exception normally.
+            method = "next";
+            arg = undefined;
+          }
+        } else if (method === "return") {
+          context.abrupt("return", arg);
+        }
+
+        state = GenStateExecuting;
+
+        var record = tryCatch(innerFn, self, context);
+        if (record.type === "normal") {
+          // If an exception is thrown from innerFn, we leave state ===
+          // GenStateExecuting and loop back for another invocation.
+          state = context.done ? GenStateCompleted : GenStateSuspendedYield;
+
+          var info = {
+            value: record.arg,
+            done: context.done
+          };
+
+          if (record.arg === ContinueSentinel) {
+            if (context.delegate && method === "next") {
+              // Deliberately forget the last sent value so that we don't
+              // accidentally pass it on to the delegate.
+              arg = undefined;
+            }
+          } else {
+            return info;
+          }
+        } else if (record.type === "throw") {
+          state = GenStateCompleted;
+          // Dispatch the exception by looping back around to the
+          // context.dispatchException(arg) call above.
+          method = "throw";
+          arg = record.arg;
+        }
+      }
+    };
+  }
+
+  // Define Generator.prototype.{next,throw,return} in terms of the
+  // unified ._invoke helper method.
+  defineIteratorMethods(Gp);
+
+  Gp[iteratorSymbol] = function () {
+    return this;
+  };
+
+  Gp.toString = function () {
+    return "[object Generator]";
+  };
+
+  function pushTryEntry(locs) {
+    var entry = { tryLoc: locs[0] };
+
+    if (1 in locs) {
+      entry.catchLoc = locs[1];
+    }
+
+    if (2 in locs) {
+      entry.finallyLoc = locs[2];
+      entry.afterLoc = locs[3];
+    }
+
+    this.tryEntries.push(entry);
+  }
+
+  function resetTryEntry(entry) {
+    var record = entry.completion || {};
+    record.type = "normal";
+    delete record.arg;
+    entry.completion = record;
+  }
+
+  function Context(tryLocsList) {
+    // The root entry object (effectively a try statement without a catch
+    // or a finally block) gives us a place to store values thrown from
+    // locations where there is no enclosing try statement.
+    this.tryEntries = [{ tryLoc: "root" }];
+    tryLocsList.forEach(pushTryEntry, this);
+    this.reset(true);
+  }
+
+  runtime.keys = function (object) {
+    var keys = [];
+    for (var key in object) {
+      keys.push(key);
+    }
+    keys.reverse();
+
+    // Rather than returning an object with a next method, we keep
+    // things simple and return the next function itself.
+    return function next() {
+      while (keys.length) {
+        var key = keys.pop();
+        if (key in object) {
+          next.value = key;
+          next.done = false;
+          return next;
+        }
+      }
+
+      // To avoid creating an additional object, we just hang the .value
+      // and .done properties off the next function object itself. This
+      // also ensures that the minifier will not anonymize the function.
+      next.done = true;
+      return next;
+    };
+  };
+
+  function values(iterable) {
+    if (iterable) {
+      var iteratorMethod = iterable[iteratorSymbol];
+      if (iteratorMethod) {
+        return iteratorMethod.call(iterable);
+      }
+
+      if (typeof iterable.next === "function") {
+        return iterable;
+      }
+
+      if (!isNaN(iterable.length)) {
+        var i = -1,
+            next = function next() {
+          while (++i < iterable.length) {
+            if (hasOwn.call(iterable, i)) {
+              next.value = iterable[i];
+              next.done = false;
+              return next;
+            }
+          }
+
+          next.value = undefined;
+          next.done = true;
+
+          return next;
+        };
+
+        return next.next = next;
+      }
+    }
+
+    // Return an iterator with no values.
+    return { next: doneResult };
+  }
+  runtime.values = values;
+
+  function doneResult() {
+    return { value: undefined, done: true };
+  }
+
+  Context.prototype = {
+    constructor: Context,
+
+    reset: function reset(skipTempReset) {
+      this.prev = 0;
+      this.next = 0;
+      this.sent = undefined;
+      this.done = false;
+      this.delegate = null;
+
+      this.tryEntries.forEach(resetTryEntry);
+
+      if (!skipTempReset) {
+        for (var name in this) {
+          // Not sure about the optimal order of these conditions:
+          if (name.charAt(0) === "t" && hasOwn.call(this, name) && !isNaN(+name.slice(1))) {
+            this[name] = undefined;
+          }
+        }
+      }
+    },
+
+    stop: function stop() {
+      this.done = true;
+
+      var rootEntry = this.tryEntries[0];
+      var rootRecord = rootEntry.completion;
+      if (rootRecord.type === "throw") {
+        throw rootRecord.arg;
+      }
+
+      return this.rval;
+    },
+
+    dispatchException: function dispatchException(exception) {
+      if (this.done) {
+        throw exception;
+      }
+
+      var context = this;
+      function handle(loc, caught) {
+        record.type = "throw";
+        record.arg = exception;
+        context.next = loc;
+        return !!caught;
+      }
+
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        var record = entry.completion;
+
+        if (entry.tryLoc === "root") {
+          // Exception thrown outside of any try block that could handle
+          // it, so set the completion value of the entire function to
+          // throw the exception.
+          return handle("end");
+        }
+
+        if (entry.tryLoc <= this.prev) {
+          var hasCatch = hasOwn.call(entry, "catchLoc");
+          var hasFinally = hasOwn.call(entry, "finallyLoc");
+
+          if (hasCatch && hasFinally) {
+            if (this.prev < entry.catchLoc) {
+              return handle(entry.catchLoc, true);
+            } else if (this.prev < entry.finallyLoc) {
+              return handle(entry.finallyLoc);
+            }
+          } else if (hasCatch) {
+            if (this.prev < entry.catchLoc) {
+              return handle(entry.catchLoc, true);
+            }
+          } else if (hasFinally) {
+            if (this.prev < entry.finallyLoc) {
+              return handle(entry.finallyLoc);
+            }
+          } else {
+            throw new Error("try statement without catch or finally");
+          }
+        }
+      }
+    },
+
+    abrupt: function abrupt(type, arg) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) {
+          var finallyEntry = entry;
+          break;
+        }
+      }
+
+      if (finallyEntry && (type === "break" || type === "continue") && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc) {
+        // Ignore the finally entry if control is not jumping to a
+        // location outside the try/catch block.
+        finallyEntry = null;
+      }
+
+      var record = finallyEntry ? finallyEntry.completion : {};
+      record.type = type;
+      record.arg = arg;
+
+      if (finallyEntry) {
+        this.next = finallyEntry.finallyLoc;
+      } else {
+        this.complete(record);
+      }
+
+      return ContinueSentinel;
+    },
+
+    complete: function complete(record, afterLoc) {
+      if (record.type === "throw") {
+        throw record.arg;
+      }
+
+      if (record.type === "break" || record.type === "continue") {
+        this.next = record.arg;
+      } else if (record.type === "return") {
+        this.rval = record.arg;
+        this.next = "end";
+      } else if (record.type === "normal" && afterLoc) {
+        this.next = afterLoc;
+      }
+    },
+
+    finish: function finish(finallyLoc) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.finallyLoc === finallyLoc) {
+          this.complete(entry.completion, entry.afterLoc);
+          resetTryEntry(entry);
+          return ContinueSentinel;
+        }
+      }
+    },
+
+    "catch": function _catch(tryLoc) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.tryLoc === tryLoc) {
+          var record = entry.completion;
+          if (record.type === "throw") {
+            var thrown = record.arg;
+            resetTryEntry(entry);
+          }
+          return thrown;
+        }
+      }
+
+      // The context.catch method must only be called with a location
+      // argument that corresponds to a known catch block.
+      throw new Error("illegal catch attempt");
+    },
+
+    delegateYield: function delegateYield(iterable, resultName, nextLoc) {
+      this.delegate = {
+        iterator: values(iterable),
+        resultName: resultName,
+        nextLoc: nextLoc
+      };
+
+      return ContinueSentinel;
+    }
+  };
+})(
+// Among the various tricks for obtaining a reference to the global
+// object, this seems to be the most reliable technique that does not
+// use indirect eval (which violates Content Security Policy).
+typeof global === "object" ? global : typeof window === "object" ? window : typeof self === "object" ? self : undefined);
+}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"_process":118,"babel-runtime/core-js/object/create":11,"babel-runtime/core-js/promise":16,"babel-runtime/core-js/symbol":18,"babel-runtime/core-js/symbol/iterator":19}],117:[function(require,module,exports){
+if (typeof Object.create === 'function') {
+  // implementation from standard node.js 'util' module
+  module.exports = function inherits(ctor, superCtor) {
+    ctor.super_ = superCtor
+    ctor.prototype = Object.create(superCtor.prototype, {
+      constructor: {
+        value: ctor,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+  };
+} else {
+  // old school shim for old browsers
+  module.exports = function inherits(ctor, superCtor) {
+    ctor.super_ = superCtor
+    var TempCtor = function () {}
+    TempCtor.prototype = superCtor.prototype
+    ctor.prototype = new TempCtor()
+    ctor.prototype.constructor = ctor
+  }
+}
+
+},{}],118:[function(require,module,exports){
+// shim for using process in browser
+
+var process = module.exports = {};
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = setTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    clearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        setTimeout(drainQueue, 0);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+},{}],119:[function(require,module,exports){
+module.exports = function isBuffer(arg) {
+  return arg && typeof arg === 'object'
+    && typeof arg.copy === 'function'
+    && typeof arg.fill === 'function'
+    && typeof arg.readUInt8 === 'function';
+}
+},{}],120:[function(require,module,exports){
+(function (process,global){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+var formatRegExp = /%[sdj%]/g;
+exports.format = function(f) {
+  if (!isString(f)) {
+    var objects = [];
+    for (var i = 0; i < arguments.length; i++) {
+      objects.push(inspect(arguments[i]));
+    }
+    return objects.join(' ');
+  }
+
+  var i = 1;
+  var args = arguments;
+  var len = args.length;
+  var str = String(f).replace(formatRegExp, function(x) {
+    if (x === '%%') return '%';
+    if (i >= len) return x;
+    switch (x) {
+      case '%s': return String(args[i++]);
+      case '%d': return Number(args[i++]);
+      case '%j':
+        try {
+          return JSON.stringify(args[i++]);
+        } catch (_) {
+          return '[Circular]';
+        }
+      default:
+        return x;
+    }
+  });
+  for (var x = args[i]; i < len; x = args[++i]) {
+    if (isNull(x) || !isObject(x)) {
+      str += ' ' + x;
+    } else {
+      str += ' ' + inspect(x);
+    }
+  }
+  return str;
+};
+
+
+// Mark that a method should not be used.
+// Returns a modified function which warns once by default.
+// If --no-deprecation is set, then it is a no-op.
+exports.deprecate = function(fn, msg) {
+  // Allow for deprecating things in the process of starting up.
+  if (isUndefined(global.process)) {
+    return function() {
+      return exports.deprecate(fn, msg).apply(this, arguments);
+    };
+  }
+
+  if (process.noDeprecation === true) {
+    return fn;
+  }
+
+  var warned = false;
+  function deprecated() {
+    if (!warned) {
+      if (process.throwDeprecation) {
+        throw new Error(msg);
+      } else if (process.traceDeprecation) {
+        console.trace(msg);
+      } else {
+        console.error(msg);
+      }
+      warned = true;
+    }
+    return fn.apply(this, arguments);
+  }
+
+  return deprecated;
+};
+
+
+var debugs = {};
+var debugEnviron;
+exports.debuglog = function(set) {
+  if (isUndefined(debugEnviron))
+    debugEnviron = process.env.NODE_DEBUG || '';
+  set = set.toUpperCase();
+  if (!debugs[set]) {
+    if (new RegExp('\\b' + set + '\\b', 'i').test(debugEnviron)) {
+      var pid = process.pid;
+      debugs[set] = function() {
+        var msg = exports.format.apply(exports, arguments);
+        console.error('%s %d: %s', set, pid, msg);
+      };
+    } else {
+      debugs[set] = function() {};
+    }
+  }
+  return debugs[set];
+};
+
+
+/**
+ * Echos the value of a value. Trys to print the value out
+ * in the best way possible given the different types.
+ *
+ * @param {Object} obj The object to print out.
+ * @param {Object} opts Optional options object that alters the output.
+ */
+/* legacy: obj, showHidden, depth, colors*/
+function inspect(obj, opts) {
+  // default options
+  var ctx = {
+    seen: [],
+    stylize: stylizeNoColor
+  };
+  // legacy...
+  if (arguments.length >= 3) ctx.depth = arguments[2];
+  if (arguments.length >= 4) ctx.colors = arguments[3];
+  if (isBoolean(opts)) {
+    // legacy...
+    ctx.showHidden = opts;
+  } else if (opts) {
+    // got an "options" object
+    exports._extend(ctx, opts);
+  }
+  // set default options
+  if (isUndefined(ctx.showHidden)) ctx.showHidden = false;
+  if (isUndefined(ctx.depth)) ctx.depth = 2;
+  if (isUndefined(ctx.colors)) ctx.colors = false;
+  if (isUndefined(ctx.customInspect)) ctx.customInspect = true;
+  if (ctx.colors) ctx.stylize = stylizeWithColor;
+  return formatValue(ctx, obj, ctx.depth);
+}
+exports.inspect = inspect;
+
+
+// http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
+inspect.colors = {
+  'bold' : [1, 22],
+  'italic' : [3, 23],
+  'underline' : [4, 24],
+  'inverse' : [7, 27],
+  'white' : [37, 39],
+  'grey' : [90, 39],
+  'black' : [30, 39],
+  'blue' : [34, 39],
+  'cyan' : [36, 39],
+  'green' : [32, 39],
+  'magenta' : [35, 39],
+  'red' : [31, 39],
+  'yellow' : [33, 39]
+};
+
+// Don't use 'blue' not visible on cmd.exe
+inspect.styles = {
+  'special': 'cyan',
+  'number': 'yellow',
+  'boolean': 'yellow',
+  'undefined': 'grey',
+  'null': 'bold',
+  'string': 'green',
+  'date': 'magenta',
+  // "name": intentionally not styling
+  'regexp': 'red'
+};
+
+
+function stylizeWithColor(str, styleType) {
+  var style = inspect.styles[styleType];
+
+  if (style) {
+    return '\u001b[' + inspect.colors[style][0] + 'm' + str +
+           '\u001b[' + inspect.colors[style][1] + 'm';
+  } else {
+    return str;
+  }
+}
+
+
+function stylizeNoColor(str, styleType) {
+  return str;
+}
+
+
+function arrayToHash(array) {
+  var hash = {};
+
+  array.forEach(function(val, idx) {
+    hash[val] = true;
+  });
+
+  return hash;
+}
+
+
+function formatValue(ctx, value, recurseTimes) {
+  // Provide a hook for user-specified inspect functions.
+  // Check that value is an object with an inspect function on it
+  if (ctx.customInspect &&
+      value &&
+      isFunction(value.inspect) &&
+      // Filter out the util module, it's inspect function is special
+      value.inspect !== exports.inspect &&
+      // Also filter out any prototype objects using the circular check.
+      !(value.constructor && value.constructor.prototype === value)) {
+    var ret = value.inspect(recurseTimes, ctx);
+    if (!isString(ret)) {
+      ret = formatValue(ctx, ret, recurseTimes);
+    }
+    return ret;
+  }
+
+  // Primitive types cannot have properties
+  var primitive = formatPrimitive(ctx, value);
+  if (primitive) {
+    return primitive;
+  }
+
+  // Look up the keys of the object.
+  var keys = Object.keys(value);
+  var visibleKeys = arrayToHash(keys);
+
+  if (ctx.showHidden) {
+    keys = Object.getOwnPropertyNames(value);
+  }
+
+  // IE doesn't make error fields non-enumerable
+  // http://msdn.microsoft.com/en-us/library/ie/dww52sbt(v=vs.94).aspx
+  if (isError(value)
+      && (keys.indexOf('message') >= 0 || keys.indexOf('description') >= 0)) {
+    return formatError(value);
+  }
+
+  // Some type of object without properties can be shortcutted.
+  if (keys.length === 0) {
+    if (isFunction(value)) {
+      var name = value.name ? ': ' + value.name : '';
+      return ctx.stylize('[Function' + name + ']', 'special');
+    }
+    if (isRegExp(value)) {
+      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+    }
+    if (isDate(value)) {
+      return ctx.stylize(Date.prototype.toString.call(value), 'date');
+    }
+    if (isError(value)) {
+      return formatError(value);
+    }
+  }
+
+  var base = '', array = false, braces = ['{', '}'];
+
+  // Make Array say that they are Array
+  if (isArray(value)) {
+    array = true;
+    braces = ['[', ']'];
+  }
+
+  // Make functions say that they are functions
+  if (isFunction(value)) {
+    var n = value.name ? ': ' + value.name : '';
+    base = ' [Function' + n + ']';
+  }
+
+  // Make RegExps say that they are RegExps
+  if (isRegExp(value)) {
+    base = ' ' + RegExp.prototype.toString.call(value);
+  }
+
+  // Make dates with properties first say the date
+  if (isDate(value)) {
+    base = ' ' + Date.prototype.toUTCString.call(value);
+  }
+
+  // Make error with message first say the error
+  if (isError(value)) {
+    base = ' ' + formatError(value);
+  }
+
+  if (keys.length === 0 && (!array || value.length == 0)) {
+    return braces[0] + base + braces[1];
+  }
+
+  if (recurseTimes < 0) {
+    if (isRegExp(value)) {
+      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+    } else {
+      return ctx.stylize('[Object]', 'special');
+    }
+  }
+
+  ctx.seen.push(value);
+
+  var output;
+  if (array) {
+    output = formatArray(ctx, value, recurseTimes, visibleKeys, keys);
+  } else {
+    output = keys.map(function(key) {
+      return formatProperty(ctx, value, recurseTimes, visibleKeys, key, array);
+    });
+  }
+
+  ctx.seen.pop();
+
+  return reduceToSingleString(output, base, braces);
+}
+
+
+function formatPrimitive(ctx, value) {
+  if (isUndefined(value))
+    return ctx.stylize('undefined', 'undefined');
+  if (isString(value)) {
+    var simple = '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
+                                             .replace(/'/g, "\\'")
+                                             .replace(/\\"/g, '"') + '\'';
+    return ctx.stylize(simple, 'string');
+  }
+  if (isNumber(value))
+    return ctx.stylize('' + value, 'number');
+  if (isBoolean(value))
+    return ctx.stylize('' + value, 'boolean');
+  // For some reason typeof null is "object", so special case here.
+  if (isNull(value))
+    return ctx.stylize('null', 'null');
+}
+
+
+function formatError(value) {
+  return '[' + Error.prototype.toString.call(value) + ']';
+}
+
+
+function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
+  var output = [];
+  for (var i = 0, l = value.length; i < l; ++i) {
+    if (hasOwnProperty(value, String(i))) {
+      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
+          String(i), true));
+    } else {
+      output.push('');
+    }
+  }
+  keys.forEach(function(key) {
+    if (!key.match(/^\d+$/)) {
+      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
+          key, true));
+    }
+  });
+  return output;
+}
+
+
+function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
+  var name, str, desc;
+  desc = Object.getOwnPropertyDescriptor(value, key) || { value: value[key] };
+  if (desc.get) {
+    if (desc.set) {
+      str = ctx.stylize('[Getter/Setter]', 'special');
+    } else {
+      str = ctx.stylize('[Getter]', 'special');
+    }
+  } else {
+    if (desc.set) {
+      str = ctx.stylize('[Setter]', 'special');
+    }
+  }
+  if (!hasOwnProperty(visibleKeys, key)) {
+    name = '[' + key + ']';
+  }
+  if (!str) {
+    if (ctx.seen.indexOf(desc.value) < 0) {
+      if (isNull(recurseTimes)) {
+        str = formatValue(ctx, desc.value, null);
+      } else {
+        str = formatValue(ctx, desc.value, recurseTimes - 1);
+      }
+      if (str.indexOf('\n') > -1) {
+        if (array) {
+          str = str.split('\n').map(function(line) {
+            return '  ' + line;
+          }).join('\n').substr(2);
+        } else {
+          str = '\n' + str.split('\n').map(function(line) {
+            return '   ' + line;
+          }).join('\n');
+        }
+      }
+    } else {
+      str = ctx.stylize('[Circular]', 'special');
+    }
+  }
+  if (isUndefined(name)) {
+    if (array && key.match(/^\d+$/)) {
+      return str;
+    }
+    name = JSON.stringify('' + key);
+    if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
+      name = name.substr(1, name.length - 2);
+      name = ctx.stylize(name, 'name');
+    } else {
+      name = name.replace(/'/g, "\\'")
+                 .replace(/\\"/g, '"')
+                 .replace(/(^"|"$)/g, "'");
+      name = ctx.stylize(name, 'string');
+    }
+  }
+
+  return name + ': ' + str;
+}
+
+
+function reduceToSingleString(output, base, braces) {
+  var numLinesEst = 0;
+  var length = output.reduce(function(prev, cur) {
+    numLinesEst++;
+    if (cur.indexOf('\n') >= 0) numLinesEst++;
+    return prev + cur.replace(/\u001b\[\d\d?m/g, '').length + 1;
+  }, 0);
+
+  if (length > 60) {
+    return braces[0] +
+           (base === '' ? '' : base + '\n ') +
+           ' ' +
+           output.join(',\n  ') +
+           ' ' +
+           braces[1];
+  }
+
+  return braces[0] + base + ' ' + output.join(', ') + ' ' + braces[1];
+}
+
+
+// NOTE: These type checking functions intentionally don't use `instanceof`
+// because it is fragile and can be easily faked with `Object.create()`.
+function isArray(ar) {
+  return Array.isArray(ar);
+}
+exports.isArray = isArray;
+
+function isBoolean(arg) {
+  return typeof arg === 'boolean';
+}
+exports.isBoolean = isBoolean;
+
+function isNull(arg) {
+  return arg === null;
+}
+exports.isNull = isNull;
+
+function isNullOrUndefined(arg) {
+  return arg == null;
+}
+exports.isNullOrUndefined = isNullOrUndefined;
+
+function isNumber(arg) {
+  return typeof arg === 'number';
+}
+exports.isNumber = isNumber;
+
+function isString(arg) {
+  return typeof arg === 'string';
+}
+exports.isString = isString;
+
+function isSymbol(arg) {
+  return typeof arg === 'symbol';
+}
+exports.isSymbol = isSymbol;
+
+function isUndefined(arg) {
+  return arg === void 0;
+}
+exports.isUndefined = isUndefined;
+
+function isRegExp(re) {
+  return isObject(re) && objectToString(re) === '[object RegExp]';
+}
+exports.isRegExp = isRegExp;
+
+function isObject(arg) {
+  return typeof arg === 'object' && arg !== null;
+}
+exports.isObject = isObject;
+
+function isDate(d) {
+  return isObject(d) && objectToString(d) === '[object Date]';
+}
+exports.isDate = isDate;
+
+function isError(e) {
+  return isObject(e) &&
+      (objectToString(e) === '[object Error]' || e instanceof Error);
+}
+exports.isError = isError;
+
+function isFunction(arg) {
+  return typeof arg === 'function';
+}
+exports.isFunction = isFunction;
+
+function isPrimitive(arg) {
+  return arg === null ||
+         typeof arg === 'boolean' ||
+         typeof arg === 'number' ||
+         typeof arg === 'string' ||
+         typeof arg === 'symbol' ||  // ES6 symbol
+         typeof arg === 'undefined';
+}
+exports.isPrimitive = isPrimitive;
+
+exports.isBuffer = require('./support/isBuffer');
+
+function objectToString(o) {
+  return Object.prototype.toString.call(o);
+}
+
+
+function pad(n) {
+  return n < 10 ? '0' + n.toString(10) : n.toString(10);
+}
+
+
+var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
+              'Oct', 'Nov', 'Dec'];
+
+// 26 Feb 16:19:34
+function timestamp() {
+  var d = new Date();
+  var time = [pad(d.getHours()),
+              pad(d.getMinutes()),
+              pad(d.getSeconds())].join(':');
+  return [d.getDate(), months[d.getMonth()], time].join(' ');
+}
+
+
+// log is just a thin wrapper to console.log that prepends a timestamp
+exports.log = function() {
+  console.log('%s - %s', timestamp(), exports.format.apply(exports, arguments));
+};
+
+
+/**
+ * Inherit the prototype methods from one constructor into another.
+ *
+ * The Function.prototype.inherits from lang.js rewritten as a standalone
+ * function (not on Function.prototype). NOTE: If this file is to be loaded
+ * during bootstrapping this function needs to be rewritten using some native
+ * functions as prototype setup using normal JavaScript does not work as
+ * expected during bootstrapping (see mirror.js in r114903).
+ *
+ * @param {function} ctor Constructor function which needs to inherit the
+ *     prototype.
+ * @param {function} superCtor Constructor function to inherit prototype from.
+ */
+exports.inherits = require('inherits');
+
+exports._extend = function(origin, add) {
+  // Don't do anything if add isn't an object
+  if (!add || !isObject(add)) return origin;
+
+  var keys = Object.keys(add);
+  var i = keys.length;
+  while (i--) {
+    origin[keys[i]] = add[keys[i]];
+  }
+  return origin;
+};
+
+function hasOwnProperty(obj, prop) {
+  return Object.prototype.hasOwnProperty.call(obj, prop);
+}
+
+}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./support/isBuffer":119,"_process":118,"inherits":117}],121:[function(require,module,exports){
+'use strict';
+
+var _Object$keys = require('babel-runtime/core-js/object/keys')['default'];
+
+var _interopRequireDefault = require('babel-runtime/helpers/interop-require-default')['default'];
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+exports.inspectGraph = inspectGraph;
+
+var _util = require('util');
+
+var _libBimap = require('../../lib/bimap');
+
+var _libBimap2 = _interopRequireDefault(_libBimap);
+
+function inspectGraph(graph) {
+    function toLiteralRecursive(scope) {
+        var accumulator = {};
+
+        _Object$keys(scope).forEach(function (key) {
+            if (scope[key] instanceof _libBimap2['default']) {
+                accumulator[key] = scope[key].toLiteral();
+            } else {
+                accumulator[key] = toLiteralRecursive(scope[key]);
+            }
+        });
+
+        return accumulator;
+    }
+
+    console.log((0, _util.inspect)(toLiteralRecursive(graph._graph), { depth: null }));
+}
+
+},{"../../lib/bimap":1,"babel-runtime/core-js/object/keys":14,"babel-runtime/helpers/interop-require-default":25,"util":120}]},{},[3])(3)
 });
