@@ -40,6 +40,31 @@ describe('Schema', () => {
         expectRelationToBe(HasAndBelongsToManyRelationship);
     });
 
+    it('can check whether schemas are equal', () => {
+        schema.hasMany('bar');
+        schema.belongsTo('baz');
+
+        let otherSchema = Schema.define('foo').hasMany('bar').belongsTo('baz');
+
+        expect(schema.equals(otherSchema)).to.be.true;
+
+        otherSchema = Schema.define('foo');
+
+        expect(schema.equals(otherSchema)).to.be.false;
+
+        otherSchema = Schema.define('foo').hasOne('bar').belongsTo('baz');
+
+        expect(schema.equals(otherSchema)).to.be.false;
+
+        otherSchema = Schema.define('foooooo').hasMany('bar').belongsTo('baz');
+
+        expect(schema.equals(otherSchema)).to.be.false;
+
+        otherSchema = Schema.define('foo').hasMany('baz').belongsTo('bar');
+
+        expect(schema.equals(otherSchema)).to.be.false;
+    });
+
     function expectRelationToBe(relationshipClass) {
         const relationship = schema.relationships.bar;
 

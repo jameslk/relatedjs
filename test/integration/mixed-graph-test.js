@@ -114,6 +114,25 @@ describe('Graph with mixed relationships', () => {
             let result3 = graph.getParent('room', 'bedroom', 'house');
             // Result: 'boulderEstate'
             expect(result3).to.equal('boulderEstate');
+
+            // Merge graphs
+
+            var graph2 = new Graph(schemas);
+
+            graph2
+                .set('person', 'james', 'john')
+                .to('house', 'beachHouse', 'skiHouse')
+            ;
+
+            var graph3 = Graph.merge(graph, graph2);
+
+            let result4 = graph3.getChildren('person', 'james', 'house');
+            // Result: ['boulderEstate', 'beachHouse', 'skiHouse']
+            expect(result4).to.eql(['boulderEstate', 'beachHouse', 'skiHouse']);
+
+            let result5 = graph3.getChildren('house', 'skiHouse', 'person');
+            // Result: ['james', 'john']
+            expect(result5).to.eql(['james', 'john']);
         });
     });
 });

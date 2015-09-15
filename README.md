@@ -32,9 +32,9 @@ import {Schema, Graph} from 'relatedjs';
 
 ## Quick start
 
-```javascript
-// Model your relationships
+### Model your relationships
 
+```javascript
 var schemas = [
     Schema.define('house')
         .hasMany('room')
@@ -51,12 +51,15 @@ var schemas = [
         .hasAndBelongsToMany('house')
 ];
 
-// Create the store for your relationships
+### Create the store for your relationships
 
+```javascript
 var graph = new Graph(schemas);
+```
 
-// Define relationships
+### Define relationships
 
+```javascript
 graph
     .append('house', 'boulderEstate').to('person', 'james')
     .append('house', 'boulderEstate', 'beachHouse').to('person', 'jane')
@@ -68,9 +71,11 @@ graph
 ;
 
 graph.set('garage', 'twoCar').to('house', 'boulderEstate');
+```
 
-// Retrieve relationships
+### Retrieve relationships
 
+```javascript
 graph.getChild('house', 'boulderEstate', 'garage');
 // Result: 'twoCar'
 
@@ -79,6 +84,25 @@ graph.getChildren('person', 'jane', 'house');
 
 graph.getParent('room', 'bedroom', 'house');
 // Result: 'boulderEstate'
+```
+
+### Merge graphs
+
+```javascript
+var graph2 = new Graph(schemas);
+
+graph2
+    .set('person', 'james', 'john')
+    .to('house', 'beachHouse', 'skiHouse')
+;
+
+var graph3 = Graph.merge(graph, graph2);
+
+graph3.getChildren('person', 'james', 'house');
+// Result: ['boulderEstate', 'beachHouse', 'skiHouse']
+
+graph3.getChildren('house', 'skiHouse', 'person');
+// Result: ['james', 'john']
 ```
 
 ## License

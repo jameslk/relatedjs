@@ -61,4 +61,24 @@ describe('Graph with a one-to-one relationship', () => {
         expect(graph.getParent('child', 'foo', 'parent')).to.equal('bar');
         expect(graph.getChild('parent', 'bar', 'child')).to.equal('foo');
     });
+
+    it('creates a new graph with merged relationships', () => {
+        graph
+            .setTo('parent', 'foo', 'child', 'bar')
+            .setTo('parent', 'foos', 'child', 'baz')
+            .setTo('parent', 'fooss', 'child', 'bazz')
+        ;
+
+        let graph2 = new Graph(schemas);
+
+        graph2
+            .setTo('parent', 'foo', 'child', 'barz')
+            .setTo('parent', 'fooz', 'child', 'baz')
+        ;
+
+        let mergedGraph = Graph.merge(graph, graph2);
+
+        expect(mergedGraph.getChild('parent', 'foo', 'child')).to.equal('barz');
+        expect(mergedGraph.getChild('parent', 'foo', 'child', 'barz'));
+    });
 });

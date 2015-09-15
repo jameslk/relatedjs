@@ -32,14 +32,22 @@ describe('Graph with many to many relationships', () => {
         expect(graph.getChildren('type2', 'bar', 'type1')).to.have.members(['foo']);
     });
 
-    it('can overwrite a relationship', () => {
+    it('overwrites relationships with subsequent sets', () => {
         graph
-            .set('type2', 'bar').to('type1', 'foo')
-            .set('type2', 'bar').to('type1', 'foos');
+            .set('type1', 'foo').to('type2', 'bar')
+            .set('type1', 'foos').to('type2', 'bar')
+        ;
 
-        expect(graph.getChildren('type1', 'foos', 'type2')).to.have.members(['bar']);
         expect(graph.getChildren('type1', 'foo', 'type2')).to.be.empty;
-        expect(graph.getChildren('type2', 'bar', 'type1')).to.have.members(['foos']);
+        expect(graph.getChildren('type1', 'foos', 'type2')).to.have.members(['bar']);
+
+        graph
+            .set('type1', 'foo', 'foos').to('type2', 'bar')
+            .set('type1', 'foo', 'foos').to('type2', 'baz', 'bazz')
+        ;
+
+        expect(graph.getChildren('type1', 'foo', 'type2')).to.have.members(['baz', 'bazz']);
+        expect(graph.getChildren('type1', 'foos', 'type2')).to.have.members(['baz', 'bazz']);
     });
 
     it('can append relationships', () => {
@@ -139,5 +147,30 @@ describe('Graph with many to many relationships', () => {
         expect(graph.getChildren('type2', 'bar', 'type1')).to.have.members(['foo', 'foo2', 'foo3']);
         expect(graph.getChildren('type2', 'baz', 'type1')).to.have.members(['foo2']);
         expect(graph.getChildren('type2', 'barz', 'type1')).to.have.members(['foo2']);
+    });
+
+    it('creates a new graph with merged relationships', () => {
+        graph
+            .append('type1', 'apple').to('type2', 'square', 'circle')
+            .append('type1', 'orange').to('type2', 'circle', 'triangle')
+        ;
+
+        let graph2 = new Graph(schemas);
+
+        graph2
+            .append('type1', 'apple', 'orange').to('type2', 'square', 'rectangle', 'heart')
+            .append('type1', 'peach').to('type2', 'circle', 'diamond')
+        ;
+
+        let mergedGraph = Graph.merge(graph, graph2);
+
+        expect(mergedGraph.getChildren('type1', 'apple', 'type2'))
+            .to.have.members(['square', 'circle', 'rectangle', 'heart']);
+
+        expect(mergedGraph.getChildren('type1', 'orange', 'type2'))
+            .to.have.members(['circle', 'triangle', 'square', 'rectangle', 'heart']);
+
+        expect(mergedGraph.getChildren('type1', 'peach', 'type2'))
+            .to.have.members(['circle', 'diamond']);
     });
 });
