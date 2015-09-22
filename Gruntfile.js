@@ -9,7 +9,8 @@ module.exports = function(grunt) {
                 }]],
 
                 browserifyOptions: {
-                    standalone: 'relatedjs'
+                    standalone: 'relatedjs',
+                    plugin: ['browserify-derequire']
                 }
             },
 
