@@ -7,6 +7,7 @@
     "test": "mocha --compilers js:babel-core/register test/*-test.js test/**/*-test.js",
     "build": "grunt build",
     "testBuild": "mocha build/test/*-test.js build/test/**/*-test.js",
+    "docs": "documentation --shallow --format md --output docs/api.md lib/*.js",
     "dist": "grunt dist"
   },
   "repository": {
@@ -35,6 +36,7 @@
     "babelify": "^7.2.0",
     "browserify-derequire": "^0.9.4",
     "chai": "^3.2.0",
+    "documentation": "^3.0.3",
     "grunt": "^0.4.5",
     "grunt-browserify": "^4.0.1",
     "grunt-contrib-clean": "^0.6.0",
@@ -45,7 +47,11 @@
     "sinon": "^1.16.1"
   },
   "babel": {
-    "presets": ["es2015"],
-    "plugins": ["transform-runtime"]
+    "presets": [
+      "es2015"
+    ],
+    "plugins": [
+      "transform-runtime"
+    ]
   }
 }
