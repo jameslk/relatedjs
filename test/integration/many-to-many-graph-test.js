@@ -112,6 +112,35 @@ describe('Graph with many to many relationships', () => {
         expect(graph.getChildren('type3', 'foo', 'type4')).to.have.members(['bar', 'baz']);
     });
 
+    it('can remove all relationships for a node type', () => {
+        schemas = [
+            Schema.define('type1')
+                .hasAndBelongsToMany('type2')
+                .hasAndBelongsToMany('type3'),
+
+            Schema.define('type2')
+                .hasAndBelongsToMany('type1')
+                .hasAndBelongsToMany('type3'),
+
+            Schema.define('type3')
+                .hasAndBelongsToMany('type1')
+                .hasAndBelongsToMany('type2')
+        ];
+
+        graph = new Graph(schemas);
+
+        graph
+            .set('type1', 'apple1').to('type2', 'orange1')
+            .set('type1', 'apple2').to('type3', 'orange2')
+            .set('type2', 'peach').to('type3', 'watermelon')
+            .removeAllOfType('type1')
+        ;
+
+        expect(graph.getChildren('type1', 'apple1', 'type2')).to.be.empty;
+        expect(graph.getChildren('type1', 'apple2', 'type3')).to.be.empty;
+        expect(graph.getChildren('type2', 'peach', 'type3')).to.have.members(['watermelon']);
+    });
+
     it('can set multiple relationships', () => {
         graph.set('type1', 'foo', 'foo2').to('type2', 'bar', 'baz');
 

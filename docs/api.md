@@ -106,6 +106,14 @@ Removes all relationships between two node types.
 -   `fromNodeType`  Type of node.
 -   `toNodeType`  Type of node.
 
+## removeAllOfType
+
+Removes all relationships of the specified node type.
+
+**Parameters**
+
+-   `nodeType`  Type of node.
+
 ## removeFrom
 
 Removes a relationship between two nodes.

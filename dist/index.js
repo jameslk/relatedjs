@@ -1080,6 +1080,51 @@ var Graph = (function () {
             } else {
                 this._graph[toNodeType][fromNodeType] = new _bimap2.default();
             }
+
+            return this;
+        }
+
+        /**
+         * Removes all relationships of the specified node type.
+         *
+         * @param nodeType Type of node.
+         */
+
+    }, {
+        key: 'removeAllOfType',
+        value: function removeAllOfType(nodeType) {
+            if (!this._schemaMap.hasOwnProperty(nodeType)) {
+                throw new Error('No schema exists for nodeType: ' + nodeType);
+            }
+
+            var toTypes = (0, _keys2.default)(this._schemaMap[nodeType].relationships);
+
+            var _iteratorNormalCompletion12 = true;
+            var _didIteratorError12 = false;
+            var _iteratorError12 = undefined;
+
+            try {
+                for (var _iterator12 = (0, _getIterator3.default)(toTypes), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
+                    var toType = _step12.value;
+
+                    this.removeAllBetween(nodeType, toType);
+                }
+            } catch (err) {
+                _didIteratorError12 = true;
+                _iteratorError12 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion12 && _iterator12.return) {
+                        _iterator12.return();
+                    }
+                } finally {
+                    if (_didIteratorError12) {
+                        throw _iteratorError12;
+                    }
+                }
+            }
+
+            return this;
         }
 
         /**
@@ -1294,52 +1339,52 @@ var Graph = (function () {
                 values = fromKeys;
             }
 
-            var _iteratorNormalCompletion12 = true;
-            var _didIteratorError12 = false;
-            var _iteratorError12 = undefined;
+            var _iteratorNormalCompletion13 = true;
+            var _didIteratorError13 = false;
+            var _iteratorError13 = undefined;
 
             try {
-                for (var _iterator12 = (0, _getIterator3.default)(keys), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
-                    var key = _step12.value;
+                for (var _iterator13 = (0, _getIterator3.default)(keys), _step13; !(_iteratorNormalCompletion13 = (_step13 = _iterator13.next()).done); _iteratorNormalCompletion13 = true) {
+                    var key = _step13.value;
 
                     relationships.removeKey(key);
 
-                    var _iteratorNormalCompletion13 = true;
-                    var _didIteratorError13 = false;
-                    var _iteratorError13 = undefined;
+                    var _iteratorNormalCompletion14 = true;
+                    var _didIteratorError14 = false;
+                    var _iteratorError14 = undefined;
 
                     try {
-                        for (var _iterator13 = (0, _getIterator3.default)(values), _step13; !(_iteratorNormalCompletion13 = (_step13 = _iterator13.next()).done); _iteratorNormalCompletion13 = true) {
-                            var value = _step13.value;
+                        for (var _iterator14 = (0, _getIterator3.default)(values), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
+                            var value = _step14.value;
 
                             relationships.removeValue(value);
                         }
                     } catch (err) {
-                        _didIteratorError13 = true;
-                        _iteratorError13 = err;
+                        _didIteratorError14 = true;
+                        _iteratorError14 = err;
                     } finally {
                         try {
-                            if (!_iteratorNormalCompletion13 && _iterator13.return) {
-                                _iterator13.return();
+                            if (!_iteratorNormalCompletion14 && _iterator14.return) {
+                                _iterator14.return();
                             }
                         } finally {
-                            if (_didIteratorError13) {
-                                throw _iteratorError13;
+                            if (_didIteratorError14) {
+                                throw _iteratorError14;
                             }
                         }
                     }
                 }
             } catch (err) {
-                _didIteratorError12 = true;
-                _iteratorError12 = err;
+                _didIteratorError13 = true;
+                _iteratorError13 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion12 && _iterator12.return) {
-                        _iterator12.return();
+                    if (!_iteratorNormalCompletion13 && _iterator13.return) {
+                        _iterator13.return();
                     }
                 } finally {
-                    if (_didIteratorError12) {
-                        throw _iteratorError12;
+                    if (_didIteratorError13) {
+                        throw _iteratorError13;
                     }
                 }
             }
@@ -1381,24 +1426,24 @@ var Graph = (function () {
     }, {
         key: '_createGraphRelationships',
         value: function _createGraphRelationships() {
-            var _iteratorNormalCompletion14 = true;
-            var _didIteratorError14 = false;
-            var _iteratorError14 = undefined;
+            var _iteratorNormalCompletion15 = true;
+            var _didIteratorError15 = false;
+            var _iteratorError15 = undefined;
 
             try {
-                for (var _iterator14 = (0, _getIterator3.default)(this._schemas), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
-                    var schema = _step14.value;
+                for (var _iterator15 = (0, _getIterator3.default)(this._schemas), _step15; !(_iteratorNormalCompletion15 = (_step15 = _iterator15.next()).done); _iteratorNormalCompletion15 = true) {
+                    var schema = _step15.value;
 
                     var fromType = schema.forType;
                     var toTypes = (0, _keys2.default)(schema.relationships);
 
-                    var _iteratorNormalCompletion15 = true;
-                    var _didIteratorError15 = false;
-                    var _iteratorError15 = undefined;
+                    var _iteratorNormalCompletion16 = true;
+                    var _didIteratorError16 = false;
+                    var _iteratorError16 = undefined;
 
                     try {
-                        for (var _iterator15 = (0, _getIterator3.default)(toTypes), _step15; !(_iteratorNormalCompletion15 = (_step15 = _iterator15.next()).done); _iteratorNormalCompletion15 = true) {
-                            var toType = _step15.value;
+                        for (var _iterator16 = (0, _getIterator3.default)(toTypes), _step16; !(_iteratorNormalCompletion16 = (_step16 = _iterator16.next()).done); _iteratorNormalCompletion16 = true) {
+                            var toType = _step16.value;
 
                             if (this._graph[fromType] && this._graph[fromType][toType]) {
                                 continue; // Bimap already created
@@ -1413,31 +1458,31 @@ var Graph = (function () {
                             }
                         }
                     } catch (err) {
-                        _didIteratorError15 = true;
-                        _iteratorError15 = err;
+                        _didIteratorError16 = true;
+                        _iteratorError16 = err;
                     } finally {
                         try {
-                            if (!_iteratorNormalCompletion15 && _iterator15.return) {
-                                _iterator15.return();
+                            if (!_iteratorNormalCompletion16 && _iterator16.return) {
+                                _iterator16.return();
                             }
                         } finally {
-                            if (_didIteratorError15) {
-                                throw _iteratorError15;
+                            if (_didIteratorError16) {
+                                throw _iteratorError16;
                             }
                         }
                     }
                 }
             } catch (err) {
-                _didIteratorError14 = true;
-                _iteratorError14 = err;
+                _didIteratorError15 = true;
+                _iteratorError15 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion14 && _iterator14.return) {
-                        _iterator14.return();
+                    if (!_iteratorNormalCompletion15 && _iterator15.return) {
+                        _iterator15.return();
                     }
                 } finally {
-                    if (_didIteratorError14) {
-                        throw _iteratorError14;
+                    if (_didIteratorError15) {
+                        throw _iteratorError15;
                     }
                 }
             }
