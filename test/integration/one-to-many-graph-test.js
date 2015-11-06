@@ -168,4 +168,35 @@ describe('Graph with a one to many relationship', () => {
         expect(mergedGraph.getChildren('parent', 'peach', 'child'))
             .to.have.members(['diamond', 'heart', 'circle']);
     });
+
+    it('can convert to and from a serializable array', () => {
+        graph
+            .set('parent', 'apple').to('child', 'square', 'triangle')
+            .set('parent', 'orange').to('child', 'rectangle')
+            .set('parent', 'peach').to('child', 'diamond', 'heart', 'circle')
+        ;
+
+        let graph2 = new Graph(graph.schemas);
+        graph2.fromSerializable(graph.toSerializable());
+
+        expect(graph.toSerializable()).to.eql(graph2.toSerializable());
+
+        expect(graph2.getChildren('parent', 'apple', 'child'))
+            .to.have.members(['square', 'triangle']);
+
+        expect(graph2.getChildren('parent', 'orange', 'child'))
+            .to.have.members(['rectangle']);
+
+        expect(graph2.getChildren('parent', 'peach', 'child'))
+            .to.have.members(['diamond', 'heart', 'circle']);
+    });
+
+    describe('with an empty graph', () => {
+        it('can convert to and from a serializable array', () => {
+            let graph2 = new Graph(graph.schemas);
+            graph2.fromSerializable(graph.toSerializable());
+
+            expect(graph.toSerializable()).to.eql(graph2.toSerializable());
+        });
+    });
 });

@@ -93,6 +93,12 @@ describe('Bimap', () => {
         expect(bimap.has('apple', 'square')).to.be.true;
     });
 
+    it('knows whether it is empty or not', () => {
+        expect(bimap.isEmpty()).to.be.true;
+        bimap.append('apple', 'triangle');
+        expect(bimap.isEmpty()).to.be.false;
+    });
+
     it('can remove a key to a value', () => {
         bimap.append('apple', 'triangle');
         bimap.append('apple', 'circle');
@@ -150,13 +156,37 @@ describe('Bimap', () => {
         expect(valueKeys('square')).to.eql(['apple']);
     });
 
-    it('can convert to a literal object', () => {
+    it('can convert to an object', () => {
         bimap.append('apple', 'triangle');
         bimap.append('orange', 'triangle');
         bimap.append('apple', 'circle');
         bimap.append('orange', 'circle');
 
-        expect(bimap.toLiteral()).to.eql({
+        expect(bimap.toObject()).to.eql({
+            keys: {'apple': ['triangle', 'circle'], 'orange': ['triangle', 'circle']},
+            values: {'triangle': ['apple', 'orange'], 'circle': ['apple', 'orange']}
+        });
+    });
+
+    it('can convert to a serializable array', () => {
+        bimap.append('apple', 'triangle');
+        bimap.append('orange', 'triangle');
+        bimap.append('apple', 'circle');
+        bimap.append('orange', 'circle');
+
+        expect(bimap.toSerializable()).to.eql([
+            ['apple', 'triangle', 'circle'],
+            ['orange', 'triangle', 'circle']
+        ]);
+    });
+
+    it('can convert from a serializable array', () => {
+        bimap = Bimap.fromSerializable([
+            ['apple', 'triangle', 'circle'],
+            ['orange', 'triangle', 'circle']
+        ]);
+
+        expect(bimap.toObject()).to.eql({
             keys: {'apple': ['triangle', 'circle'], 'orange': ['triangle', 'circle']},
             values: {'triangle': ['apple', 'orange'], 'circle': ['apple', 'orange']}
         });
@@ -190,7 +220,7 @@ describe('Bimap', () => {
         });
 
         it('creates a new Bimap of merged keys and values', () => {
-            let {keys, values} = Bimap.merge(bimap1, bimap2).toLiteral();
+            let {keys, values} = Bimap.merge(bimap1, bimap2).toObject();
 
             expectLiteralsToMatch(keys, {
                 foo_apple: ['foo_triangle', 'foo_circle'],
@@ -206,7 +236,7 @@ describe('Bimap', () => {
         });
 
         it('creates a new Bimap of the former keys and values replaced with the latter', () => {
-            let {keys, values} = Bimap.replace(bimap1, bimap2).toLiteral();
+            let {keys, values} = Bimap.replace(bimap1, bimap2).toObject();
 
             expect(keys).to.eql({
                 foo_apple: ['foo_circle'],
@@ -220,7 +250,7 @@ describe('Bimap', () => {
         });
 
         it('creates a new Bimap of merged keys and replaced values', () => {
-            let {keys, values} = Bimap.mergeKeysReplaceValues(bimap1, bimap2).toLiteral();
+            let {keys, values} = Bimap.mergeKeysReplaceValues(bimap1, bimap2).toObject();
 
             expectLiteralsToMatch(keys, {
                 foo_apple: ['foo_triangle', 'foo_circle'],
@@ -234,7 +264,7 @@ describe('Bimap', () => {
         });
 
         it('creates a new Bimap of replaced keys and merged values', () => {
-            let {keys, values} = Bimap.replaceKeysMergeValues(bimap1, bimap2).toLiteral();
+            let {keys, values} = Bimap.replaceKeysMergeValues(bimap1, bimap2).toObject();
 
             expect(keys).to.eql({
                 foo_apple: ['foo_circle'],

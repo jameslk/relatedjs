@@ -202,4 +202,27 @@ describe('Graph with many to many relationships', () => {
         expect(mergedGraph.getChildren('type1', 'peach', 'type2'))
             .to.have.members(['circle', 'diamond']);
     });
+
+    it('can convert to and from a serializable array', () => {
+        graph
+            .append('type1', 'apple').to('type2', 'square', 'circle')
+            .append('type1', 'orange').to('type2', 'circle', 'triangle')
+            .append('type1', 'apple', 'orange').to('type2', 'square', 'rectangle', 'heart')
+            .append('type1', 'peach').to('type2', 'circle', 'diamond')
+        ;
+
+        let graph2 = new Graph(graph.schemas);
+        graph2.fromSerializable(graph.toSerializable());
+
+        expect(graph.toSerializable()).to.eql(graph2.toSerializable());
+
+        expect(graph.getChildren('type1', 'apple', 'type2'))
+            .to.have.members(['square', 'circle', 'rectangle', 'heart']);
+
+        expect(graph.getChildren('type1', 'orange', 'type2'))
+            .to.have.members(['circle', 'triangle', 'square', 'rectangle', 'heart']);
+
+        expect(graph.getChildren('type1', 'peach', 'type2'))
+            .to.have.members(['circle', 'diamond']);
+    });
 });

@@ -17,13 +17,17 @@ var _regenerator = _dereq_("babel-runtime/regenerator");
 
 var _regenerator2 = _interopRequireDefault(_regenerator);
 
+var _set = _dereq_("babel-runtime/core-js/set");
+
+var _set2 = _interopRequireDefault(_set);
+
 var _getIterator2 = _dereq_("babel-runtime/core-js/get-iterator");
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
-var _set = _dereq_("babel-runtime/core-js/set");
+var _toConsumableArray2 = _dereq_("babel-runtime/helpers/toConsumableArray");
 
-var _set2 = _interopRequireDefault(_set);
+var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
 
 var _from = _dereq_("babel-runtime/core-js/array/from");
 
@@ -112,8 +116,13 @@ var Bimap = (function () {
             return this._keys.has(key) && this._keys.get(key).has(value);
         }
     }, {
-        key: "toLiteral",
-        value: function toLiteral() {
+        key: "isEmpty",
+        value: function isEmpty() {
+            return !this._keys.size;
+        }
+    }, {
+        key: "toObject",
+        value: function toObject() {
             var keys = {};
 
             this._keys.forEach(function (values, key) {
@@ -127,6 +136,18 @@ var Bimap = (function () {
             });
 
             return { keys: keys, values: values };
+        }
+    }, {
+        key: "toSerializable",
+        value: function toSerializable() {
+            var serializable = new Array(this._keys.size);
+            var i = 0;
+
+            this._keys.forEach(function (values, key) {
+                serializable[i++] = [key].concat((0, _toConsumableArray3.default)(values));
+            });
+
+            return serializable;
         }
     }, {
         key: "_setKeyLinkTo",
@@ -183,49 +204,15 @@ var Bimap = (function () {
                 return;
             }
 
-            var _iteratorNormalCompletion3 = true;
-            var _didIteratorError3 = false;
-            var _iteratorError3 = undefined;
-
-            try {
-                for (var _iterator3 = (0, _getIterator3.default)(valuesLinkingToKey), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-                    var value = _step3.value;
-
-                    this._removeValueLinkTo(value, key);
-                }
-            } catch (err) {
-                _didIteratorError3 = true;
-                _iteratorError3 = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion3 && _iterator3.return) {
-                        _iterator3.return();
-                    }
-                } finally {
-                    if (_didIteratorError3) {
-                        throw _iteratorError3;
-                    }
-                }
-            }
-        }
-    }, {
-        key: "_removeLinksToValue",
-        value: function _removeLinksToValue(value) {
-            var keysLinkingToValue = this._values.get(value);
-
-            if (!keysLinkingToValue) {
-                return;
-            }
-
             var _iteratorNormalCompletion4 = true;
             var _didIteratorError4 = false;
             var _iteratorError4 = undefined;
 
             try {
-                for (var _iterator4 = (0, _getIterator3.default)(keysLinkingToValue), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-                    var key = _step4.value;
+                for (var _iterator4 = (0, _getIterator3.default)(valuesLinkingToKey), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                    var value = _step4.value;
 
-                    this._removeKeyLinkTo(key, value);
+                    this._removeValueLinkTo(value, key);
                 }
             } catch (err) {
                 _didIteratorError4 = true;
@@ -242,7 +229,75 @@ var Bimap = (function () {
                 }
             }
         }
+    }, {
+        key: "_removeLinksToValue",
+        value: function _removeLinksToValue(value) {
+            var keysLinkingToValue = this._values.get(value);
+
+            if (!keysLinkingToValue) {
+                return;
+            }
+
+            var _iteratorNormalCompletion5 = true;
+            var _didIteratorError5 = false;
+            var _iteratorError5 = undefined;
+
+            try {
+                for (var _iterator5 = (0, _getIterator3.default)(keysLinkingToValue), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                    var key = _step5.value;
+
+                    this._removeKeyLinkTo(key, value);
+                }
+            } catch (err) {
+                _didIteratorError5 = true;
+                _iteratorError5 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion5 && _iterator5.return) {
+                        _iterator5.return();
+                    }
+                } finally {
+                    if (_didIteratorError5) {
+                        throw _iteratorError5;
+                    }
+                }
+            }
+        }
     }], [{
+        key: "fromSerializable",
+        value: function fromSerializable(serializable) {
+            var bimap = new this();
+
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = (0, _getIterator3.default)(serializable), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var keyValues = _step.value;
+
+                    for (var key = keyValues[0], i = 1; i < keyValues.length; ++i) {
+                        bimap.append(key, keyValues[i]);
+                    }
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+
+            return bimap;
+        }
+    }, {
         key: "merge",
         value: function merge(bimap1, bimap2) {
             var resultBimap = new this();
@@ -277,28 +332,28 @@ var Bimap = (function () {
             resultBimap._values = this._mergeMapSets([this._newFilteredMapSet(bimap1._values, excludedKeyValues), bimap2._values]);
 
             var excludedValueKeys = new _set2.default(_regenerator2.default.mark(function _callee() {
-                var _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, valueKeys;
+                var _iteratorNormalCompletion2, _didIteratorError2, _iteratorError2, _iterator2, _step2, valueKeys;
 
                 return _regenerator2.default.wrap(function _callee$(_context) {
                     while (1) switch (_context.prev = _context.next) {
                         case 0:
-                            _iteratorNormalCompletion = true;
-                            _didIteratorError = false;
-                            _iteratorError = undefined;
+                            _iteratorNormalCompletion2 = true;
+                            _didIteratorError2 = false;
+                            _iteratorError2 = undefined;
                             _context.prev = 3;
-                            _iterator = (0, _getIterator3.default)(bimap2._values);
+                            _iterator2 = (0, _getIterator3.default)(bimap2._values);
 
                         case 5:
-                            if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
+                            if (_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done) {
                                 _context.next = 11;
                                 break;
                             }
 
-                            valueKeys = _step.value;
+                            valueKeys = _step2.value;
                             return _context.delegateYield(valueKeys, "t0", 8);
 
                         case 8:
-                            _iteratorNormalCompletion = true;
+                            _iteratorNormalCompletion2 = true;
                             _context.next = 5;
                             break;
 
@@ -309,26 +364,26 @@ var Bimap = (function () {
                         case 13:
                             _context.prev = 13;
                             _context.t1 = _context["catch"](3);
-                            _didIteratorError = true;
-                            _iteratorError = _context.t1;
+                            _didIteratorError2 = true;
+                            _iteratorError2 = _context.t1;
 
                         case 17:
                             _context.prev = 17;
                             _context.prev = 18;
 
-                            if (!_iteratorNormalCompletion && _iterator.return) {
-                                _iterator.return();
+                            if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                                _iterator2.return();
                             }
 
                         case 20:
                             _context.prev = 20;
 
-                            if (!_didIteratorError) {
+                            if (!_didIteratorError2) {
                                 _context.next = 23;
                                 break;
                             }
 
-                            throw _iteratorError;
+                            throw _iteratorError2;
 
                         case 23:
                             return _context.finish(20);
@@ -357,28 +412,28 @@ var Bimap = (function () {
             resultBimap._keys = this._mergeMapSets([this._newFilteredMapSet(bimap1._keys, excludedValueKeys), bimap2._keys]);
 
             var excludedKeyValues = new _set2.default(_regenerator2.default.mark(function _callee2() {
-                var _iteratorNormalCompletion2, _didIteratorError2, _iteratorError2, _iterator2, _step2, keyValues;
+                var _iteratorNormalCompletion3, _didIteratorError3, _iteratorError3, _iterator3, _step3, keyValues;
 
                 return _regenerator2.default.wrap(function _callee2$(_context2) {
                     while (1) switch (_context2.prev = _context2.next) {
                         case 0:
-                            _iteratorNormalCompletion2 = true;
-                            _didIteratorError2 = false;
-                            _iteratorError2 = undefined;
+                            _iteratorNormalCompletion3 = true;
+                            _didIteratorError3 = false;
+                            _iteratorError3 = undefined;
                             _context2.prev = 3;
-                            _iterator2 = (0, _getIterator3.default)(bimap2._keys);
+                            _iterator3 = (0, _getIterator3.default)(bimap2._keys);
 
                         case 5:
-                            if (_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done) {
+                            if (_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done) {
                                 _context2.next = 11;
                                 break;
                             }
 
-                            keyValues = _step2.value;
+                            keyValues = _step3.value;
                             return _context2.delegateYield(keyValues, "t0", 8);
 
                         case 8:
-                            _iteratorNormalCompletion2 = true;
+                            _iteratorNormalCompletion3 = true;
                             _context2.next = 5;
                             break;
 
@@ -389,26 +444,26 @@ var Bimap = (function () {
                         case 13:
                             _context2.prev = 13;
                             _context2.t1 = _context2["catch"](3);
-                            _didIteratorError2 = true;
-                            _iteratorError2 = _context2.t1;
+                            _didIteratorError3 = true;
+                            _iteratorError3 = _context2.t1;
 
                         case 17:
                             _context2.prev = 17;
                             _context2.prev = 18;
 
-                            if (!_iteratorNormalCompletion2 && _iterator2.return) {
-                                _iterator2.return();
+                            if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                                _iterator3.return();
                             }
 
                         case 20:
                             _context2.prev = 20;
 
-                            if (!_didIteratorError2) {
+                            if (!_didIteratorError3) {
                                 _context2.next = 23;
                                 break;
                             }
 
-                            throw _iteratorError2;
+                            throw _iteratorError3;
 
                         case 23:
                             return _context2.finish(20);
@@ -480,29 +535,29 @@ var Bimap = (function () {
                 if (excludedValueSet) {
                     filteredValues = new _set2.default();
 
-                    var _iteratorNormalCompletion5 = true;
-                    var _didIteratorError5 = false;
-                    var _iteratorError5 = undefined;
+                    var _iteratorNormalCompletion6 = true;
+                    var _didIteratorError6 = false;
+                    var _iteratorError6 = undefined;
 
                     try {
-                        for (var _iterator5 = (0, _getIterator3.default)(values), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-                            var value = _step5.value;
+                        for (var _iterator6 = (0, _getIterator3.default)(values), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+                            var value = _step6.value;
 
                             if (!excludedValueSet.has(value)) {
                                 filteredValues.add(value);
                             }
                         }
                     } catch (err) {
-                        _didIteratorError5 = true;
-                        _iteratorError5 = err;
+                        _didIteratorError6 = true;
+                        _iteratorError6 = err;
                     } finally {
                         try {
-                            if (!_iteratorNormalCompletion5 && _iterator5.return) {
-                                _iterator5.return();
+                            if (!_iteratorNormalCompletion6 && _iterator6.return) {
+                                _iterator6.return();
                             }
                         } finally {
-                            if (_didIteratorError5) {
-                                throw _iteratorError5;
+                            if (_didIteratorError6) {
+                                throw _iteratorError6;
                             }
                         }
                     }
@@ -525,7 +580,7 @@ var Bimap = (function () {
 
 exports.default = Bimap;
 
-},{"babel-runtime/core-js/array/from":6,"babel-runtime/core-js/get-iterator":7,"babel-runtime/core-js/map":9,"babel-runtime/core-js/set":16,"babel-runtime/helpers/classCallCheck":19,"babel-runtime/helpers/createClass":20,"babel-runtime/regenerator":112}],2:[function(_dereq_,module,exports){
+},{"babel-runtime/core-js/array/from":6,"babel-runtime/core-js/get-iterator":7,"babel-runtime/core-js/map":9,"babel-runtime/core-js/set":16,"babel-runtime/helpers/classCallCheck":19,"babel-runtime/helpers/createClass":20,"babel-runtime/helpers/toConsumableArray":25,"babel-runtime/regenerator":113}],2:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -540,10 +595,6 @@ var _createClass2 = _dereq_('babel-runtime/helpers/createClass');
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
-var _slicedToArray2 = _dereq_('babel-runtime/helpers/slicedToArray');
-
-var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
-
 var _from = _dereq_('babel-runtime/core-js/array/from');
 
 var _from2 = _interopRequireDefault(_from);
@@ -551,6 +602,14 @@ var _from2 = _interopRequireDefault(_from);
 var _assign = _dereq_('babel-runtime/core-js/object/assign');
 
 var _assign2 = _interopRequireDefault(_assign);
+
+var _slicedToArray2 = _dereq_('babel-runtime/helpers/slicedToArray');
+
+var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
+
+var _toConsumableArray2 = _dereq_('babel-runtime/helpers/toConsumableArray');
+
+var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
 
 var _defineProperty2 = _dereq_('babel-runtime/helpers/defineProperty');
 
@@ -1256,6 +1315,81 @@ var Graph = (function () {
          */
 
     }, {
+        key: 'toSerializable',
+
+        /**
+         * Converts the current graph into a plain JavaScript array. This allows for
+         * serialization, such as with JSON, for example. The result does not include
+         * any information about schemas.
+         */
+        value: function toSerializable() {
+            var _this6 = this;
+
+            var serializable = [];
+
+            (0, _keys2.default)(this._graph).forEach(function (primaryType) {
+                (0, _keys2.default)(_this6._graph[primaryType]).forEach(function (secondaryType) {
+                    if (!_this6._graph[primaryType][secondaryType] || _this6._graph[primaryType][secondaryType].isEmpty()) {
+
+                        return; // Skip empty relationships
+                    }
+
+                    serializable.push([primaryType, secondaryType].concat((0, _toConsumableArray3.default)(_this6._graph[primaryType][secondaryType].toSerializable())));
+                });
+            });
+
+            return serializable;
+        }
+
+        /**
+         * Uses the given array to construct a graph. For better performance, this
+         * method does not check the integrity of the result, such as whether it
+         * is compatible with the schemas.
+         *
+         * Note: This will also overwrite any current graph data if any exists.
+         *
+         * @param serializableArrayGraph {array} An array of graph data output from `toSerializable()`.
+         */
+
+    }, {
+        key: 'fromSerializable',
+        value: function fromSerializable(serializableArrayGraph) {
+            this._graph = {};
+            this._createGraphRelationships();
+
+            var _iteratorNormalCompletion13 = true;
+            var _didIteratorError13 = false;
+            var _iteratorError13 = undefined;
+
+            try {
+                for (var _iterator13 = (0, _getIterator3.default)(serializableArrayGraph), _step13; !(_iteratorNormalCompletion13 = (_step13 = _iterator13.next()).done); _iteratorNormalCompletion13 = true) {
+                    var relationshipArray = _step13.value;
+
+                    var _relationshipArray = (0, _slicedToArray3.default)(relationshipArray, 2);
+
+                    var primaryType = _relationshipArray[0];
+                    var secondaryType = _relationshipArray[1];
+
+                    this._graph[primaryType][secondaryType] = _bimap2.default.fromSerializable(relationshipArray.slice(2));
+                }
+            } catch (err) {
+                _didIteratorError13 = true;
+                _iteratorError13 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion13 && _iterator13.return) {
+                        _iterator13.return();
+                    }
+                } finally {
+                    if (_didIteratorError13) {
+                        throw _iteratorError13;
+                    }
+                }
+            }
+
+            return this;
+        }
+    }, {
         key: '_lookupRelationship',
         value: function _lookupRelationship(fromNodeType, toNodeType) {
             var schema = this._schemaMap[fromNodeType];
@@ -1339,52 +1473,52 @@ var Graph = (function () {
                 values = fromKeys;
             }
 
-            var _iteratorNormalCompletion13 = true;
-            var _didIteratorError13 = false;
-            var _iteratorError13 = undefined;
+            var _iteratorNormalCompletion14 = true;
+            var _didIteratorError14 = false;
+            var _iteratorError14 = undefined;
 
             try {
-                for (var _iterator13 = (0, _getIterator3.default)(keys), _step13; !(_iteratorNormalCompletion13 = (_step13 = _iterator13.next()).done); _iteratorNormalCompletion13 = true) {
-                    var key = _step13.value;
+                for (var _iterator14 = (0, _getIterator3.default)(keys), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
+                    var key = _step14.value;
 
                     relationships.removeKey(key);
 
-                    var _iteratorNormalCompletion14 = true;
-                    var _didIteratorError14 = false;
-                    var _iteratorError14 = undefined;
+                    var _iteratorNormalCompletion15 = true;
+                    var _didIteratorError15 = false;
+                    var _iteratorError15 = undefined;
 
                     try {
-                        for (var _iterator14 = (0, _getIterator3.default)(values), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
-                            var value = _step14.value;
+                        for (var _iterator15 = (0, _getIterator3.default)(values), _step15; !(_iteratorNormalCompletion15 = (_step15 = _iterator15.next()).done); _iteratorNormalCompletion15 = true) {
+                            var value = _step15.value;
 
                             relationships.removeValue(value);
                         }
                     } catch (err) {
-                        _didIteratorError14 = true;
-                        _iteratorError14 = err;
+                        _didIteratorError15 = true;
+                        _iteratorError15 = err;
                     } finally {
                         try {
-                            if (!_iteratorNormalCompletion14 && _iterator14.return) {
-                                _iterator14.return();
+                            if (!_iteratorNormalCompletion15 && _iterator15.return) {
+                                _iterator15.return();
                             }
                         } finally {
-                            if (_didIteratorError14) {
-                                throw _iteratorError14;
+                            if (_didIteratorError15) {
+                                throw _iteratorError15;
                             }
                         }
                     }
                 }
             } catch (err) {
-                _didIteratorError13 = true;
-                _iteratorError13 = err;
+                _didIteratorError14 = true;
+                _iteratorError14 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion13 && _iterator13.return) {
-                        _iterator13.return();
+                    if (!_iteratorNormalCompletion14 && _iterator14.return) {
+                        _iterator14.return();
                     }
                 } finally {
-                    if (_didIteratorError13) {
-                        throw _iteratorError13;
+                    if (_didIteratorError14) {
+                        throw _iteratorError14;
                     }
                 }
             }
@@ -1426,24 +1560,24 @@ var Graph = (function () {
     }, {
         key: '_createGraphRelationships',
         value: function _createGraphRelationships() {
-            var _iteratorNormalCompletion15 = true;
-            var _didIteratorError15 = false;
-            var _iteratorError15 = undefined;
+            var _iteratorNormalCompletion16 = true;
+            var _didIteratorError16 = false;
+            var _iteratorError16 = undefined;
 
             try {
-                for (var _iterator15 = (0, _getIterator3.default)(this._schemas), _step15; !(_iteratorNormalCompletion15 = (_step15 = _iterator15.next()).done); _iteratorNormalCompletion15 = true) {
-                    var schema = _step15.value;
+                for (var _iterator16 = (0, _getIterator3.default)(this._schemas), _step16; !(_iteratorNormalCompletion16 = (_step16 = _iterator16.next()).done); _iteratorNormalCompletion16 = true) {
+                    var schema = _step16.value;
 
                     var fromType = schema.forType;
                     var toTypes = (0, _keys2.default)(schema.relationships);
 
-                    var _iteratorNormalCompletion16 = true;
-                    var _didIteratorError16 = false;
-                    var _iteratorError16 = undefined;
+                    var _iteratorNormalCompletion17 = true;
+                    var _didIteratorError17 = false;
+                    var _iteratorError17 = undefined;
 
                     try {
-                        for (var _iterator16 = (0, _getIterator3.default)(toTypes), _step16; !(_iteratorNormalCompletion16 = (_step16 = _iterator16.next()).done); _iteratorNormalCompletion16 = true) {
-                            var toType = _step16.value;
+                        for (var _iterator17 = (0, _getIterator3.default)(toTypes), _step17; !(_iteratorNormalCompletion17 = (_step17 = _iterator17.next()).done); _iteratorNormalCompletion17 = true) {
+                            var toType = _step17.value;
 
                             if (this._graph[fromType] && this._graph[fromType][toType]) {
                                 continue; // Bimap already created
@@ -1458,31 +1592,31 @@ var Graph = (function () {
                             }
                         }
                     } catch (err) {
-                        _didIteratorError16 = true;
-                        _iteratorError16 = err;
+                        _didIteratorError17 = true;
+                        _iteratorError17 = err;
                     } finally {
                         try {
-                            if (!_iteratorNormalCompletion16 && _iterator16.return) {
-                                _iterator16.return();
+                            if (!_iteratorNormalCompletion17 && _iterator17.return) {
+                                _iterator17.return();
                             }
                         } finally {
-                            if (_didIteratorError16) {
-                                throw _iteratorError16;
+                            if (_didIteratorError17) {
+                                throw _iteratorError17;
                             }
                         }
                     }
                 }
             } catch (err) {
-                _didIteratorError15 = true;
-                _iteratorError15 = err;
+                _didIteratorError16 = true;
+                _iteratorError16 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion15 && _iterator15.return) {
-                        _iterator15.return();
+                    if (!_iteratorNormalCompletion16 && _iterator16.return) {
+                        _iterator16.return();
                     }
                 } finally {
-                    if (_didIteratorError15) {
-                        throw _iteratorError15;
+                    if (_didIteratorError16) {
+                        throw _iteratorError16;
                     }
                 }
             }
@@ -1601,7 +1735,7 @@ var Graph = (function () {
 
 exports.default = Graph;
 
-},{"./bimap":1,"./relationships":4,"babel-runtime/core-js/array/from":6,"babel-runtime/core-js/get-iterator":7,"babel-runtime/core-js/object/assign":10,"babel-runtime/core-js/object/keys":13,"babel-runtime/helpers/classCallCheck":19,"babel-runtime/helpers/createClass":20,"babel-runtime/helpers/defineProperty":21,"babel-runtime/helpers/slicedToArray":24}],3:[function(_dereq_,module,exports){
+},{"./bimap":1,"./relationships":4,"babel-runtime/core-js/array/from":6,"babel-runtime/core-js/get-iterator":7,"babel-runtime/core-js/object/assign":10,"babel-runtime/core-js/object/keys":13,"babel-runtime/helpers/classCallCheck":19,"babel-runtime/helpers/createClass":20,"babel-runtime/helpers/defineProperty":21,"babel-runtime/helpers/slicedToArray":24,"babel-runtime/helpers/toConsumableArray":25}],3:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1940,31 +2074,31 @@ exports.default = Schema;
 
 },{"./relationships":4,"babel-runtime/core-js/object/keys":13,"babel-runtime/helpers/classCallCheck":19,"babel-runtime/helpers/createClass":20}],6:[function(_dereq_,module,exports){
 module.exports = { "default": _dereq_("core-js/library/fn/array/from"), __esModule: true };
-},{"core-js/library/fn/array/from":25}],7:[function(_dereq_,module,exports){
+},{"core-js/library/fn/array/from":26}],7:[function(_dereq_,module,exports){
 module.exports = { "default": _dereq_("core-js/library/fn/get-iterator"), __esModule: true };
-},{"core-js/library/fn/get-iterator":26}],8:[function(_dereq_,module,exports){
+},{"core-js/library/fn/get-iterator":27}],8:[function(_dereq_,module,exports){
 module.exports = { "default": _dereq_("core-js/library/fn/is-iterable"), __esModule: true };
-},{"core-js/library/fn/is-iterable":27}],9:[function(_dereq_,module,exports){
+},{"core-js/library/fn/is-iterable":28}],9:[function(_dereq_,module,exports){
 module.exports = { "default": _dereq_("core-js/library/fn/map"), __esModule: true };
-},{"core-js/library/fn/map":28}],10:[function(_dereq_,module,exports){
+},{"core-js/library/fn/map":29}],10:[function(_dereq_,module,exports){
 module.exports = { "default": _dereq_("core-js/library/fn/object/assign"), __esModule: true };
-},{"core-js/library/fn/object/assign":29}],11:[function(_dereq_,module,exports){
+},{"core-js/library/fn/object/assign":30}],11:[function(_dereq_,module,exports){
 module.exports = { "default": _dereq_("core-js/library/fn/object/create"), __esModule: true };
-},{"core-js/library/fn/object/create":30}],12:[function(_dereq_,module,exports){
+},{"core-js/library/fn/object/create":31}],12:[function(_dereq_,module,exports){
 module.exports = { "default": _dereq_("core-js/library/fn/object/define-property"), __esModule: true };
-},{"core-js/library/fn/object/define-property":31}],13:[function(_dereq_,module,exports){
+},{"core-js/library/fn/object/define-property":32}],13:[function(_dereq_,module,exports){
 module.exports = { "default": _dereq_("core-js/library/fn/object/keys"), __esModule: true };
-},{"core-js/library/fn/object/keys":32}],14:[function(_dereq_,module,exports){
+},{"core-js/library/fn/object/keys":33}],14:[function(_dereq_,module,exports){
 module.exports = { "default": _dereq_("core-js/library/fn/object/set-prototype-of"), __esModule: true };
-},{"core-js/library/fn/object/set-prototype-of":33}],15:[function(_dereq_,module,exports){
+},{"core-js/library/fn/object/set-prototype-of":34}],15:[function(_dereq_,module,exports){
 module.exports = { "default": _dereq_("core-js/library/fn/promise"), __esModule: true };
-},{"core-js/library/fn/promise":34}],16:[function(_dereq_,module,exports){
+},{"core-js/library/fn/promise":35}],16:[function(_dereq_,module,exports){
 module.exports = { "default": _dereq_("core-js/library/fn/set"), __esModule: true };
-},{"core-js/library/fn/set":35}],17:[function(_dereq_,module,exports){
+},{"core-js/library/fn/set":36}],17:[function(_dereq_,module,exports){
 module.exports = { "default": _dereq_("core-js/library/fn/symbol"), __esModule: true };
-},{"core-js/library/fn/symbol":36}],18:[function(_dereq_,module,exports){
+},{"core-js/library/fn/symbol":37}],18:[function(_dereq_,module,exports){
 module.exports = { "default": _dereq_("core-js/library/fn/symbol/iterator"), __esModule: true };
-},{"core-js/library/fn/symbol/iterator":37}],19:[function(_dereq_,module,exports){
+},{"core-js/library/fn/symbol/iterator":38}],19:[function(_dereq_,module,exports){
 "use strict";
 
 function _instanceof(left, right) { if (right != null && right[Symbol.hasInstance]) { return right[Symbol.hasInstance](left); } else { return left instanceof right; } }
@@ -2128,78 +2262,98 @@ exports.default = (function () {
 
 exports.__esModule = true;
 },{"babel-runtime/core-js/get-iterator":7,"babel-runtime/core-js/is-iterable":8}],25:[function(_dereq_,module,exports){
+"use strict";
+
+var _from = _dereq_("babel-runtime/core-js/array/from");
+
+var _from2 = _interopRequireDefault(_from);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = function (arr) {
+  if (Array.isArray(arr)) {
+    for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
+
+    return arr2;
+  } else {
+    return (0, _from2.default)(arr);
+  }
+};
+
+exports.__esModule = true;
+},{"babel-runtime/core-js/array/from":6}],26:[function(_dereq_,module,exports){
 _dereq_('../../modules/es6.string.iterator');
 _dereq_('../../modules/es6.array.from');
 module.exports = _dereq_('../../modules/$.core').Array.from;
-},{"../../modules/$.core":46,"../../modules/es6.array.from":98,"../../modules/es6.string.iterator":107}],26:[function(_dereq_,module,exports){
+},{"../../modules/$.core":47,"../../modules/es6.array.from":99,"../../modules/es6.string.iterator":108}],27:[function(_dereq_,module,exports){
 _dereq_('../modules/web.dom.iterable');
 _dereq_('../modules/es6.string.iterator');
 module.exports = _dereq_('../modules/core.get-iterator');
-},{"../modules/core.get-iterator":96,"../modules/es6.string.iterator":107,"../modules/web.dom.iterable":111}],27:[function(_dereq_,module,exports){
+},{"../modules/core.get-iterator":97,"../modules/es6.string.iterator":108,"../modules/web.dom.iterable":112}],28:[function(_dereq_,module,exports){
 _dereq_('../modules/web.dom.iterable');
 _dereq_('../modules/es6.string.iterator');
 module.exports = _dereq_('../modules/core.is-iterable');
-},{"../modules/core.is-iterable":97,"../modules/es6.string.iterator":107,"../modules/web.dom.iterable":111}],28:[function(_dereq_,module,exports){
+},{"../modules/core.is-iterable":98,"../modules/es6.string.iterator":108,"../modules/web.dom.iterable":112}],29:[function(_dereq_,module,exports){
 _dereq_('../modules/es6.object.to-string');
 _dereq_('../modules/es6.string.iterator');
 _dereq_('../modules/web.dom.iterable');
 _dereq_('../modules/es6.map');
 _dereq_('../modules/es7.map.to-json');
 module.exports = _dereq_('../modules/$.core').Map;
-},{"../modules/$.core":46,"../modules/es6.map":100,"../modules/es6.object.to-string":104,"../modules/es6.string.iterator":107,"../modules/es7.map.to-json":109,"../modules/web.dom.iterable":111}],29:[function(_dereq_,module,exports){
+},{"../modules/$.core":47,"../modules/es6.map":101,"../modules/es6.object.to-string":105,"../modules/es6.string.iterator":108,"../modules/es7.map.to-json":110,"../modules/web.dom.iterable":112}],30:[function(_dereq_,module,exports){
 _dereq_('../../modules/es6.object.assign');
 module.exports = _dereq_('../../modules/$.core').Object.assign;
-},{"../../modules/$.core":46,"../../modules/es6.object.assign":101}],30:[function(_dereq_,module,exports){
+},{"../../modules/$.core":47,"../../modules/es6.object.assign":102}],31:[function(_dereq_,module,exports){
 var $ = _dereq_('../../modules/$');
 module.exports = function create(P, D){
   return $.create(P, D);
 };
-},{"../../modules/$":71}],31:[function(_dereq_,module,exports){
+},{"../../modules/$":72}],32:[function(_dereq_,module,exports){
 var $ = _dereq_('../../modules/$');
 module.exports = function defineProperty(it, key, desc){
   return $.setDesc(it, key, desc);
 };
-},{"../../modules/$":71}],32:[function(_dereq_,module,exports){
+},{"../../modules/$":72}],33:[function(_dereq_,module,exports){
 _dereq_('../../modules/es6.object.keys');
 module.exports = _dereq_('../../modules/$.core').Object.keys;
-},{"../../modules/$.core":46,"../../modules/es6.object.keys":102}],33:[function(_dereq_,module,exports){
+},{"../../modules/$.core":47,"../../modules/es6.object.keys":103}],34:[function(_dereq_,module,exports){
 _dereq_('../../modules/es6.object.set-prototype-of');
 module.exports = _dereq_('../../modules/$.core').Object.setPrototypeOf;
-},{"../../modules/$.core":46,"../../modules/es6.object.set-prototype-of":103}],34:[function(_dereq_,module,exports){
+},{"../../modules/$.core":47,"../../modules/es6.object.set-prototype-of":104}],35:[function(_dereq_,module,exports){
 _dereq_('../modules/es6.object.to-string');
 _dereq_('../modules/es6.string.iterator');
 _dereq_('../modules/web.dom.iterable');
 _dereq_('../modules/es6.promise');
 module.exports = _dereq_('../modules/$.core').Promise;
-},{"../modules/$.core":46,"../modules/es6.object.to-string":104,"../modules/es6.promise":105,"../modules/es6.string.iterator":107,"../modules/web.dom.iterable":111}],35:[function(_dereq_,module,exports){
+},{"../modules/$.core":47,"../modules/es6.object.to-string":105,"../modules/es6.promise":106,"../modules/es6.string.iterator":108,"../modules/web.dom.iterable":112}],36:[function(_dereq_,module,exports){
 _dereq_('../modules/es6.object.to-string');
 _dereq_('../modules/es6.string.iterator');
 _dereq_('../modules/web.dom.iterable');
 _dereq_('../modules/es6.set');
 _dereq_('../modules/es7.set.to-json');
 module.exports = _dereq_('../modules/$.core').Set;
-},{"../modules/$.core":46,"../modules/es6.object.to-string":104,"../modules/es6.set":106,"../modules/es6.string.iterator":107,"../modules/es7.set.to-json":110,"../modules/web.dom.iterable":111}],36:[function(_dereq_,module,exports){
+},{"../modules/$.core":47,"../modules/es6.object.to-string":105,"../modules/es6.set":107,"../modules/es6.string.iterator":108,"../modules/es7.set.to-json":111,"../modules/web.dom.iterable":112}],37:[function(_dereq_,module,exports){
 _dereq_('../../modules/es6.symbol');
 _dereq_('../../modules/es6.object.to-string');
 module.exports = _dereq_('../../modules/$.core').Symbol;
-},{"../../modules/$.core":46,"../../modules/es6.object.to-string":104,"../../modules/es6.symbol":108}],37:[function(_dereq_,module,exports){
+},{"../../modules/$.core":47,"../../modules/es6.object.to-string":105,"../../modules/es6.symbol":109}],38:[function(_dereq_,module,exports){
 _dereq_('../../modules/es6.string.iterator');
 _dereq_('../../modules/web.dom.iterable');
 module.exports = _dereq_('../../modules/$.wks')('iterator');
-},{"../../modules/$.wks":94,"../../modules/es6.string.iterator":107,"../../modules/web.dom.iterable":111}],38:[function(_dereq_,module,exports){
+},{"../../modules/$.wks":95,"../../modules/es6.string.iterator":108,"../../modules/web.dom.iterable":112}],39:[function(_dereq_,module,exports){
 module.exports = function(it){
   if(typeof it != 'function')throw TypeError(it + ' is not a function!');
   return it;
 };
-},{}],39:[function(_dereq_,module,exports){
-module.exports = function(){ /* empty */ };
 },{}],40:[function(_dereq_,module,exports){
+module.exports = function(){ /* empty */ };
+},{}],41:[function(_dereq_,module,exports){
 var isObject = _dereq_('./$.is-object');
 module.exports = function(it){
   if(!isObject(it))throw TypeError(it + ' is not an object!');
   return it;
 };
-},{"./$.is-object":64}],41:[function(_dereq_,module,exports){
+},{"./$.is-object":65}],42:[function(_dereq_,module,exports){
 // getting tag from 19.1.3.6 Object.prototype.toString()
 var cof = _dereq_('./$.cof')
   , TAG = _dereq_('./$.wks')('toStringTag')
@@ -2216,13 +2370,13 @@ module.exports = function(it){
     // ES3 arguments fallback
     : (B = cof(O)) == 'Object' && typeof O.callee == 'function' ? 'Arguments' : B;
 };
-},{"./$.cof":42,"./$.wks":94}],42:[function(_dereq_,module,exports){
+},{"./$.cof":43,"./$.wks":95}],43:[function(_dereq_,module,exports){
 var toString = {}.toString;
 
 module.exports = function(it){
   return toString.call(it).slice(8, -1);
 };
-},{}],43:[function(_dereq_,module,exports){
+},{}],44:[function(_dereq_,module,exports){
 'use strict';
 var $            = _dereq_('./$')
   , hide         = _dereq_('./$.hide')
@@ -2382,7 +2536,7 @@ module.exports = {
     setSpecies(NAME);
   }
 };
-},{"./$":71,"./$.ctx":47,"./$.defined":49,"./$.descriptors":50,"./$.for-of":54,"./$.has":57,"./$.hide":58,"./$.is-object":64,"./$.iter-define":67,"./$.iter-step":69,"./$.mix":75,"./$.set-species":82,"./$.strict-new":86,"./$.uid":93}],44:[function(_dereq_,module,exports){
+},{"./$":72,"./$.ctx":48,"./$.defined":50,"./$.descriptors":51,"./$.for-of":55,"./$.has":58,"./$.hide":59,"./$.is-object":65,"./$.iter-define":68,"./$.iter-step":70,"./$.mix":76,"./$.set-species":83,"./$.strict-new":87,"./$.uid":94}],45:[function(_dereq_,module,exports){
 // https://github.com/DavidBruant/Map-Set.prototype.toJSON
 var forOf   = _dereq_('./$.for-of')
   , classof = _dereq_('./$.classof');
@@ -2394,7 +2548,7 @@ module.exports = function(NAME){
     return arr;
   };
 };
-},{"./$.classof":41,"./$.for-of":54}],45:[function(_dereq_,module,exports){
+},{"./$.classof":42,"./$.for-of":55}],46:[function(_dereq_,module,exports){
 'use strict';
 var global         = _dereq_('./$.global')
   , $              = _dereq_('./$')
@@ -2450,10 +2604,10 @@ module.exports = function(NAME, wrapper, methods, common, IS_MAP, IS_WEAK){
 
   return C;
 };
-},{"./$":71,"./$.def":48,"./$.descriptors":50,"./$.fails":53,"./$.for-of":54,"./$.global":56,"./$.hide":58,"./$.is-object":64,"./$.mix":75,"./$.set-to-string-tag":83,"./$.strict-new":86}],46:[function(_dereq_,module,exports){
+},{"./$":72,"./$.def":49,"./$.descriptors":51,"./$.fails":54,"./$.for-of":55,"./$.global":57,"./$.hide":59,"./$.is-object":65,"./$.mix":76,"./$.set-to-string-tag":84,"./$.strict-new":87}],47:[function(_dereq_,module,exports){
 var core = module.exports = {version: '1.2.5'};
 if(typeof __e == 'number')__e = core; // eslint-disable-line no-undef
-},{}],47:[function(_dereq_,module,exports){
+},{}],48:[function(_dereq_,module,exports){
 // optional / simple context binding
 var aFunction = _dereq_('./$.a-function');
 module.exports = function(fn, that, length){
@@ -2474,7 +2628,7 @@ module.exports = function(fn, that, length){
     return fn.apply(that, arguments);
   };
 };
-},{"./$.a-function":38}],48:[function(_dereq_,module,exports){
+},{"./$.a-function":39}],49:[function(_dereq_,module,exports){
 var global    = _dereq_('./$.global')
   , core      = _dereq_('./$.core')
   , PROTOTYPE = 'prototype';
@@ -2522,18 +2676,18 @@ $def.P = 8;  // proto
 $def.B = 16; // bind
 $def.W = 32; // wrap
 module.exports = $def;
-},{"./$.core":46,"./$.global":56}],49:[function(_dereq_,module,exports){
+},{"./$.core":47,"./$.global":57}],50:[function(_dereq_,module,exports){
 // 7.2.1 RequireObjectCoercible(argument)
 module.exports = function(it){
   if(it == undefined)throw TypeError("Can't call method on  " + it);
   return it;
 };
-},{}],50:[function(_dereq_,module,exports){
+},{}],51:[function(_dereq_,module,exports){
 // Thank's IE8 for his funny defineProperty
 module.exports = !_dereq_('./$.fails')(function(){
   return Object.defineProperty({}, 'a', {get: function(){ return 7; }}).a != 7;
 });
-},{"./$.fails":53}],51:[function(_dereq_,module,exports){
+},{"./$.fails":54}],52:[function(_dereq_,module,exports){
 var isObject = _dereq_('./$.is-object')
   , document = _dereq_('./$.global').document
   // in old IE typeof document.createElement is 'object'
@@ -2541,7 +2695,7 @@ var isObject = _dereq_('./$.is-object')
 module.exports = function(it){
   return is ? document.createElement(it) : {};
 };
-},{"./$.global":56,"./$.is-object":64}],52:[function(_dereq_,module,exports){
+},{"./$.global":57,"./$.is-object":65}],53:[function(_dereq_,module,exports){
 // all enumerable object keys, includes symbols
 var $ = _dereq_('./$');
 module.exports = function(it){
@@ -2556,7 +2710,7 @@ module.exports = function(it){
   }
   return keys;
 };
-},{"./$":71}],53:[function(_dereq_,module,exports){
+},{"./$":72}],54:[function(_dereq_,module,exports){
 module.exports = function(exec){
   try {
     return !!exec();
@@ -2564,7 +2718,7 @@ module.exports = function(exec){
     return true;
   }
 };
-},{}],54:[function(_dereq_,module,exports){
+},{}],55:[function(_dereq_,module,exports){
 var ctx         = _dereq_('./$.ctx')
   , call        = _dereq_('./$.iter-call')
   , isArrayIter = _dereq_('./$.is-array-iter')
@@ -2584,7 +2738,7 @@ module.exports = function(iterable, entries, fn, that){
     call(iterator, f, step.value, entries);
   }
 };
-},{"./$.an-object":40,"./$.ctx":47,"./$.is-array-iter":62,"./$.iter-call":65,"./$.to-length":91,"./core.get-iterator-method":95}],55:[function(_dereq_,module,exports){
+},{"./$.an-object":41,"./$.ctx":48,"./$.is-array-iter":63,"./$.iter-call":66,"./$.to-length":92,"./core.get-iterator-method":96}],56:[function(_dereq_,module,exports){
 // fallback for IE11 buggy Object.getOwnPropertyNames with iframe and window
 var toString  = {}.toString
   , toIObject = _dereq_('./$.to-iobject')
@@ -2605,17 +2759,17 @@ module.exports.get = function getOwnPropertyNames(it){
   if(windowNames && toString.call(it) == '[object Window]')return getWindowNames(it);
   return getNames(toIObject(it));
 };
-},{"./$":71,"./$.to-iobject":90}],56:[function(_dereq_,module,exports){
+},{"./$":72,"./$.to-iobject":91}],57:[function(_dereq_,module,exports){
 // https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
 var global = module.exports = typeof window != 'undefined' && window.Math == Math
   ? window : typeof self != 'undefined' && self.Math == Math ? self : Function('return this')();
 if(typeof __g == 'number')__g = global; // eslint-disable-line no-undef
-},{}],57:[function(_dereq_,module,exports){
+},{}],58:[function(_dereq_,module,exports){
 var hasOwnProperty = {}.hasOwnProperty;
 module.exports = function(it, key){
   return hasOwnProperty.call(it, key);
 };
-},{}],58:[function(_dereq_,module,exports){
+},{}],59:[function(_dereq_,module,exports){
 var $          = _dereq_('./$')
   , createDesc = _dereq_('./$.property-desc');
 module.exports = _dereq_('./$.descriptors') ? function(object, key, value){
@@ -2624,9 +2778,9 @@ module.exports = _dereq_('./$.descriptors') ? function(object, key, value){
   object[key] = value;
   return object;
 };
-},{"./$":71,"./$.descriptors":50,"./$.property-desc":78}],59:[function(_dereq_,module,exports){
+},{"./$":72,"./$.descriptors":51,"./$.property-desc":79}],60:[function(_dereq_,module,exports){
 module.exports = _dereq_('./$.global').document && document.documentElement;
-},{"./$.global":56}],60:[function(_dereq_,module,exports){
+},{"./$.global":57}],61:[function(_dereq_,module,exports){
 // fast apply, http://jsperf.lnkit.com/fast-apply/5
 module.exports = function(fn, args, that){
   var un = that === undefined;
@@ -2643,13 +2797,13 @@ module.exports = function(fn, args, that){
                       : fn.call(that, args[0], args[1], args[2], args[3]);
   } return              fn.apply(that, args);
 };
-},{}],61:[function(_dereq_,module,exports){
+},{}],62:[function(_dereq_,module,exports){
 // fallback for non-array-like ES3 and non-enumerable old V8 strings
 var cof = _dereq_('./$.cof');
 module.exports = Object('z').propertyIsEnumerable(0) ? Object : function(it){
   return cof(it) == 'String' ? it.split('') : Object(it);
 };
-},{"./$.cof":42}],62:[function(_dereq_,module,exports){
+},{"./$.cof":43}],63:[function(_dereq_,module,exports){
 // check on default Array iterator
 var Iterators  = _dereq_('./$.iterators')
   , ITERATOR   = _dereq_('./$.wks')('iterator')
@@ -2658,17 +2812,17 @@ var Iterators  = _dereq_('./$.iterators')
 module.exports = function(it){
   return (Iterators.Array || ArrayProto[ITERATOR]) === it;
 };
-},{"./$.iterators":70,"./$.wks":94}],63:[function(_dereq_,module,exports){
+},{"./$.iterators":71,"./$.wks":95}],64:[function(_dereq_,module,exports){
 // 7.2.2 IsArray(argument)
 var cof = _dereq_('./$.cof');
 module.exports = Array.isArray || function(arg){
   return cof(arg) == 'Array';
 };
-},{"./$.cof":42}],64:[function(_dereq_,module,exports){
+},{"./$.cof":43}],65:[function(_dereq_,module,exports){
 module.exports = function(it){
   return typeof it === 'object' ? it !== null : typeof it === 'function';
 };
-},{}],65:[function(_dereq_,module,exports){
+},{}],66:[function(_dereq_,module,exports){
 // call something on iterator step with safe closing on error
 var anObject = _dereq_('./$.an-object');
 module.exports = function(iterator, fn, value, entries){
@@ -2681,7 +2835,7 @@ module.exports = function(iterator, fn, value, entries){
     throw e;
   }
 };
-},{"./$.an-object":40}],66:[function(_dereq_,module,exports){
+},{"./$.an-object":41}],67:[function(_dereq_,module,exports){
 'use strict';
 var $              = _dereq_('./$')
   , descriptor     = _dereq_('./$.property-desc')
@@ -2695,7 +2849,7 @@ module.exports = function(Constructor, NAME, next){
   Constructor.prototype = $.create(IteratorPrototype, {next: descriptor(1, next)});
   setToStringTag(Constructor, NAME + ' Iterator');
 };
-},{"./$":71,"./$.hide":58,"./$.property-desc":78,"./$.set-to-string-tag":83,"./$.wks":94}],67:[function(_dereq_,module,exports){
+},{"./$":72,"./$.hide":59,"./$.property-desc":79,"./$.set-to-string-tag":84,"./$.wks":95}],68:[function(_dereq_,module,exports){
 'use strict';
 var LIBRARY         = _dereq_('./$.library')
   , $def            = _dereq_('./$.def')
@@ -2753,7 +2907,7 @@ module.exports = function(Base, NAME, Constructor, next, DEFAULT, IS_SET, FORCE)
   }
   return methods;
 };
-},{"./$":71,"./$.def":48,"./$.has":57,"./$.hide":58,"./$.iter-create":66,"./$.iterators":70,"./$.library":73,"./$.redef":79,"./$.set-to-string-tag":83,"./$.wks":94}],68:[function(_dereq_,module,exports){
+},{"./$":72,"./$.def":49,"./$.has":58,"./$.hide":59,"./$.iter-create":67,"./$.iterators":71,"./$.library":74,"./$.redef":80,"./$.set-to-string-tag":84,"./$.wks":95}],69:[function(_dereq_,module,exports){
 var ITERATOR     = _dereq_('./$.wks')('iterator')
   , SAFE_CLOSING = false;
 
@@ -2775,13 +2929,13 @@ module.exports = function(exec, skipClosing){
   } catch(e){ /* empty */ }
   return safe;
 };
-},{"./$.wks":94}],69:[function(_dereq_,module,exports){
+},{"./$.wks":95}],70:[function(_dereq_,module,exports){
 module.exports = function(done, value){
   return {value: value, done: !!done};
 };
-},{}],70:[function(_dereq_,module,exports){
-module.exports = {};
 },{}],71:[function(_dereq_,module,exports){
+module.exports = {};
+},{}],72:[function(_dereq_,module,exports){
 var $Object = Object;
 module.exports = {
   create:     $Object.create,
@@ -2795,7 +2949,7 @@ module.exports = {
   getSymbols: $Object.getOwnPropertySymbols,
   each:       [].forEach
 };
-},{}],72:[function(_dereq_,module,exports){
+},{}],73:[function(_dereq_,module,exports){
 var $         = _dereq_('./$')
   , toIObject = _dereq_('./$.to-iobject');
 module.exports = function(object, el){
@@ -2806,9 +2960,9 @@ module.exports = function(object, el){
     , key;
   while(length > index)if(O[key = keys[index++]] === el)return key;
 };
-},{"./$":71,"./$.to-iobject":90}],73:[function(_dereq_,module,exports){
+},{"./$":72,"./$.to-iobject":91}],74:[function(_dereq_,module,exports){
 module.exports = true;
-},{}],74:[function(_dereq_,module,exports){
+},{}],75:[function(_dereq_,module,exports){
 var global    = _dereq_('./$.global')
   , macrotask = _dereq_('./$.task').set
   , Observer  = global.MutationObserver || global.WebKitMutationObserver
@@ -2866,13 +3020,13 @@ module.exports = function asap(fn){
     notify();
   } last = task;
 };
-},{"./$.cof":42,"./$.global":56,"./$.task":88}],75:[function(_dereq_,module,exports){
+},{"./$.cof":43,"./$.global":57,"./$.task":89}],76:[function(_dereq_,module,exports){
 var $redef = _dereq_('./$.redef');
 module.exports = function(target, src){
   for(var key in src)$redef(target, key, src[key]);
   return target;
 };
-},{"./$.redef":79}],76:[function(_dereq_,module,exports){
+},{"./$.redef":80}],77:[function(_dereq_,module,exports){
 // 19.1.2.1 Object.assign(target, source, ...)
 var $        = _dereq_('./$')
   , toObject = _dereq_('./$.to-object')
@@ -2906,7 +3060,7 @@ module.exports = _dereq_('./$.fails')(function(){
   }
   return T;
 } : Object.assign;
-},{"./$":71,"./$.fails":53,"./$.iobject":61,"./$.to-object":92}],77:[function(_dereq_,module,exports){
+},{"./$":72,"./$.fails":54,"./$.iobject":62,"./$.to-object":93}],78:[function(_dereq_,module,exports){
 // most Object methods by ES6 should accept primitives
 var $def  = _dereq_('./$.def')
   , core  = _dereq_('./$.core')
@@ -2918,7 +3072,7 @@ module.exports = function(KEY, exec){
   exp[KEY] = exec(fn);
   $def($def.S + $def.F * fails(function(){ fn(1); }), 'Object', exp);
 };
-},{"./$.core":46,"./$.def":48,"./$.fails":53}],78:[function(_dereq_,module,exports){
+},{"./$.core":47,"./$.def":49,"./$.fails":54}],79:[function(_dereq_,module,exports){
 module.exports = function(bitmap, value){
   return {
     enumerable  : !(bitmap & 1),
@@ -2927,14 +3081,14 @@ module.exports = function(bitmap, value){
     value       : value
   };
 };
-},{}],79:[function(_dereq_,module,exports){
+},{}],80:[function(_dereq_,module,exports){
 module.exports = _dereq_('./$.hide');
-},{"./$.hide":58}],80:[function(_dereq_,module,exports){
+},{"./$.hide":59}],81:[function(_dereq_,module,exports){
 // 7.2.9 SameValue(x, y)
 module.exports = Object.is || function is(x, y){
   return x === y ? x !== 0 || 1 / x === 1 / y : x != x && y != y;
 };
-},{}],81:[function(_dereq_,module,exports){
+},{}],82:[function(_dereq_,module,exports){
 // Works with __proto__ only. Old v8 can't work with null proto objects.
 /* eslint-disable no-proto */
 var getDesc  = _dereq_('./$').getDesc
@@ -2961,7 +3115,7 @@ module.exports = {
     }({}, false) : undefined),
   check: check
 };
-},{"./$":71,"./$.an-object":40,"./$.ctx":47,"./$.is-object":64}],82:[function(_dereq_,module,exports){
+},{"./$":72,"./$.an-object":41,"./$.ctx":48,"./$.is-object":65}],83:[function(_dereq_,module,exports){
 'use strict';
 var core        = _dereq_('./$.core')
   , $           = _dereq_('./$')
@@ -2975,7 +3129,7 @@ module.exports = function(KEY){
     get: function(){ return this; }
   });
 };
-},{"./$":71,"./$.core":46,"./$.descriptors":50,"./$.wks":94}],83:[function(_dereq_,module,exports){
+},{"./$":72,"./$.core":47,"./$.descriptors":51,"./$.wks":95}],84:[function(_dereq_,module,exports){
 var def = _dereq_('./$').setDesc
   , has = _dereq_('./$.has')
   , TAG = _dereq_('./$.wks')('toStringTag');
@@ -2983,14 +3137,14 @@ var def = _dereq_('./$').setDesc
 module.exports = function(it, tag, stat){
   if(it && !has(it = stat ? it : it.prototype, TAG))def(it, TAG, {configurable: true, value: tag});
 };
-},{"./$":71,"./$.has":57,"./$.wks":94}],84:[function(_dereq_,module,exports){
+},{"./$":72,"./$.has":58,"./$.wks":95}],85:[function(_dereq_,module,exports){
 var global = _dereq_('./$.global')
   , SHARED = '__core-js_shared__'
   , store  = global[SHARED] || (global[SHARED] = {});
 module.exports = function(key){
   return store[key] || (store[key] = {});
 };
-},{"./$.global":56}],85:[function(_dereq_,module,exports){
+},{"./$.global":57}],86:[function(_dereq_,module,exports){
 // 7.3.20 SpeciesConstructor(O, defaultConstructor)
 var anObject  = _dereq_('./$.an-object')
   , aFunction = _dereq_('./$.a-function')
@@ -2999,12 +3153,12 @@ module.exports = function(O, D){
   var C = anObject(O).constructor, S;
   return C === undefined || (S = anObject(C)[SPECIES]) == undefined ? D : aFunction(S);
 };
-},{"./$.a-function":38,"./$.an-object":40,"./$.wks":94}],86:[function(_dereq_,module,exports){
+},{"./$.a-function":39,"./$.an-object":41,"./$.wks":95}],87:[function(_dereq_,module,exports){
 module.exports = function(it, Constructor, name){
   if(!(it instanceof Constructor))throw TypeError(name + ": use the 'new' operator!");
   return it;
 };
-},{}],87:[function(_dereq_,module,exports){
+},{}],88:[function(_dereq_,module,exports){
 var toInteger = _dereq_('./$.to-integer')
   , defined   = _dereq_('./$.defined');
 // true  -> String#at
@@ -3023,7 +3177,7 @@ module.exports = function(TO_STRING){
         : TO_STRING ? s.slice(i, i + 2) : (a - 0xd800 << 10) + (b - 0xdc00) + 0x10000;
   };
 };
-},{"./$.defined":49,"./$.to-integer":89}],88:[function(_dereq_,module,exports){
+},{"./$.defined":50,"./$.to-integer":90}],89:[function(_dereq_,module,exports){
 'use strict';
 var ctx                = _dereq_('./$.ctx')
   , invoke             = _dereq_('./$.invoke')
@@ -3100,40 +3254,40 @@ module.exports = {
   set:   setTask,
   clear: clearTask
 };
-},{"./$.cof":42,"./$.ctx":47,"./$.dom-create":51,"./$.global":56,"./$.html":59,"./$.invoke":60}],89:[function(_dereq_,module,exports){
+},{"./$.cof":43,"./$.ctx":48,"./$.dom-create":52,"./$.global":57,"./$.html":60,"./$.invoke":61}],90:[function(_dereq_,module,exports){
 // 7.1.4 ToInteger
 var ceil  = Math.ceil
   , floor = Math.floor;
 module.exports = function(it){
   return isNaN(it = +it) ? 0 : (it > 0 ? floor : ceil)(it);
 };
-},{}],90:[function(_dereq_,module,exports){
+},{}],91:[function(_dereq_,module,exports){
 // to indexed object, toObject with fallback for non-array-like ES3 strings
 var IObject = _dereq_('./$.iobject')
   , defined = _dereq_('./$.defined');
 module.exports = function(it){
   return IObject(defined(it));
 };
-},{"./$.defined":49,"./$.iobject":61}],91:[function(_dereq_,module,exports){
+},{"./$.defined":50,"./$.iobject":62}],92:[function(_dereq_,module,exports){
 // 7.1.15 ToLength
 var toInteger = _dereq_('./$.to-integer')
   , min       = Math.min;
 module.exports = function(it){
   return it > 0 ? min(toInteger(it), 0x1fffffffffffff) : 0; // pow(2, 53) - 1 == 9007199254740991
 };
-},{"./$.to-integer":89}],92:[function(_dereq_,module,exports){
+},{"./$.to-integer":90}],93:[function(_dereq_,module,exports){
 // 7.1.13 ToObject(argument)
 var defined = _dereq_('./$.defined');
 module.exports = function(it){
   return Object(defined(it));
 };
-},{"./$.defined":49}],93:[function(_dereq_,module,exports){
+},{"./$.defined":50}],94:[function(_dereq_,module,exports){
 var id = 0
   , px = Math.random();
 module.exports = function(key){
   return 'Symbol('.concat(key === undefined ? '' : key, ')_', (++id + px).toString(36));
 };
-},{}],94:[function(_dereq_,module,exports){
+},{}],95:[function(_dereq_,module,exports){
 var store  = _dereq_('./$.shared')('wks')
   , uid    = _dereq_('./$.uid')
   , Symbol = _dereq_('./$.global').Symbol;
@@ -3141,7 +3295,7 @@ module.exports = function(name){
   return store[name] || (store[name] =
     Symbol && Symbol[name] || (Symbol || uid)('Symbol.' + name));
 };
-},{"./$.global":56,"./$.shared":84,"./$.uid":93}],95:[function(_dereq_,module,exports){
+},{"./$.global":57,"./$.shared":85,"./$.uid":94}],96:[function(_dereq_,module,exports){
 var classof   = _dereq_('./$.classof')
   , ITERATOR  = _dereq_('./$.wks')('iterator')
   , Iterators = _dereq_('./$.iterators');
@@ -3150,7 +3304,7 @@ module.exports = _dereq_('./$.core').getIteratorMethod = function(it){
     || it['@@iterator']
     || Iterators[classof(it)];
 };
-},{"./$.classof":41,"./$.core":46,"./$.iterators":70,"./$.wks":94}],96:[function(_dereq_,module,exports){
+},{"./$.classof":42,"./$.core":47,"./$.iterators":71,"./$.wks":95}],97:[function(_dereq_,module,exports){
 var anObject = _dereq_('./$.an-object')
   , get      = _dereq_('./core.get-iterator-method');
 module.exports = _dereq_('./$.core').getIterator = function(it){
@@ -3158,7 +3312,7 @@ module.exports = _dereq_('./$.core').getIterator = function(it){
   if(typeof iterFn != 'function')throw TypeError(it + ' is not iterable!');
   return anObject(iterFn.call(it));
 };
-},{"./$.an-object":40,"./$.core":46,"./core.get-iterator-method":95}],97:[function(_dereq_,module,exports){
+},{"./$.an-object":41,"./$.core":47,"./core.get-iterator-method":96}],98:[function(_dereq_,module,exports){
 var classof   = _dereq_('./$.classof')
   , ITERATOR  = _dereq_('./$.wks')('iterator')
   , Iterators = _dereq_('./$.iterators');
@@ -3168,7 +3322,7 @@ module.exports = _dereq_('./$.core').isIterable = function(it){
     || '@@iterator' in O
     || Iterators.hasOwnProperty(classof(O));
 };
-},{"./$.classof":41,"./$.core":46,"./$.iterators":70,"./$.wks":94}],98:[function(_dereq_,module,exports){
+},{"./$.classof":42,"./$.core":47,"./$.iterators":71,"./$.wks":95}],99:[function(_dereq_,module,exports){
 'use strict';
 var ctx         = _dereq_('./$.ctx')
   , $def        = _dereq_('./$.def')
@@ -3206,7 +3360,7 @@ $def($def.S + $def.F * !_dereq_('./$.iter-detect')(function(iter){ Array.from(it
   }
 });
 
-},{"./$.ctx":47,"./$.def":48,"./$.is-array-iter":62,"./$.iter-call":65,"./$.iter-detect":68,"./$.to-length":91,"./$.to-object":92,"./core.get-iterator-method":95}],99:[function(_dereq_,module,exports){
+},{"./$.ctx":48,"./$.def":49,"./$.is-array-iter":63,"./$.iter-call":66,"./$.iter-detect":69,"./$.to-length":92,"./$.to-object":93,"./core.get-iterator-method":96}],100:[function(_dereq_,module,exports){
 'use strict';
 var addToUnscopables = _dereq_('./$.add-to-unscopables')
   , step             = _dereq_('./$.iter-step')
@@ -3241,7 +3395,7 @@ Iterators.Arguments = Iterators.Array;
 addToUnscopables('keys');
 addToUnscopables('values');
 addToUnscopables('entries');
-},{"./$.add-to-unscopables":39,"./$.iter-define":67,"./$.iter-step":69,"./$.iterators":70,"./$.to-iobject":90}],100:[function(_dereq_,module,exports){
+},{"./$.add-to-unscopables":40,"./$.iter-define":68,"./$.iter-step":70,"./$.iterators":71,"./$.to-iobject":91}],101:[function(_dereq_,module,exports){
 'use strict';
 var strong = _dereq_('./$.collection-strong');
 
@@ -3259,12 +3413,12 @@ _dereq_('./$.collection')('Map', function(get){
     return strong.def(this, key === 0 ? 0 : key, value);
   }
 }, strong, true);
-},{"./$.collection":45,"./$.collection-strong":43}],101:[function(_dereq_,module,exports){
+},{"./$.collection":46,"./$.collection-strong":44}],102:[function(_dereq_,module,exports){
 // 19.1.3.1 Object.assign(target, source)
 var $def = _dereq_('./$.def');
 
 $def($def.S + $def.F, 'Object', {assign: _dereq_('./$.object-assign')});
-},{"./$.def":48,"./$.object-assign":76}],102:[function(_dereq_,module,exports){
+},{"./$.def":49,"./$.object-assign":77}],103:[function(_dereq_,module,exports){
 // 19.1.2.14 Object.keys(O)
 var toObject = _dereq_('./$.to-object');
 
@@ -3273,13 +3427,13 @@ _dereq_('./$.object-sap')('keys', function($keys){
     return $keys(toObject(it));
   };
 });
-},{"./$.object-sap":77,"./$.to-object":92}],103:[function(_dereq_,module,exports){
+},{"./$.object-sap":78,"./$.to-object":93}],104:[function(_dereq_,module,exports){
 // 19.1.3.19 Object.setPrototypeOf(O, proto)
 var $def = _dereq_('./$.def');
 $def($def.S, 'Object', {setPrototypeOf: _dereq_('./$.set-proto').set});
-},{"./$.def":48,"./$.set-proto":81}],104:[function(_dereq_,module,exports){
+},{"./$.def":49,"./$.set-proto":82}],105:[function(_dereq_,module,exports){
 
-},{}],105:[function(_dereq_,module,exports){
+},{}],106:[function(_dereq_,module,exports){
 'use strict';
 var $          = _dereq_('./$')
   , LIBRARY    = _dereq_('./$.library')
@@ -3542,7 +3696,7 @@ $def($def.S + $def.F * !(useNative && _dereq_('./$.iter-detect')(function(iter){
     });
   }
 });
-},{"./$":71,"./$.a-function":38,"./$.an-object":40,"./$.classof":41,"./$.core":46,"./$.ctx":47,"./$.def":48,"./$.descriptors":50,"./$.for-of":54,"./$.global":56,"./$.is-object":64,"./$.iter-detect":68,"./$.library":73,"./$.microtask":74,"./$.mix":75,"./$.same-value":80,"./$.set-proto":81,"./$.set-species":82,"./$.set-to-string-tag":83,"./$.species-constructor":85,"./$.strict-new":86,"./$.uid":93,"./$.wks":94}],106:[function(_dereq_,module,exports){
+},{"./$":72,"./$.a-function":39,"./$.an-object":41,"./$.classof":42,"./$.core":47,"./$.ctx":48,"./$.def":49,"./$.descriptors":51,"./$.for-of":55,"./$.global":57,"./$.is-object":65,"./$.iter-detect":69,"./$.library":74,"./$.microtask":75,"./$.mix":76,"./$.same-value":81,"./$.set-proto":82,"./$.set-species":83,"./$.set-to-string-tag":84,"./$.species-constructor":86,"./$.strict-new":87,"./$.uid":94,"./$.wks":95}],107:[function(_dereq_,module,exports){
 'use strict';
 var strong = _dereq_('./$.collection-strong');
 
@@ -3555,7 +3709,7 @@ _dereq_('./$.collection')('Set', function(get){
     return strong.def(this, value = value === 0 ? 0 : value, value);
   }
 }, strong);
-},{"./$.collection":45,"./$.collection-strong":43}],107:[function(_dereq_,module,exports){
+},{"./$.collection":46,"./$.collection-strong":44}],108:[function(_dereq_,module,exports){
 'use strict';
 var $at  = _dereq_('./$.string-at')(true);
 
@@ -3573,7 +3727,7 @@ _dereq_('./$.iter-define')(String, 'String', function(iterated){
   this._i += point.length;
   return {value: point, done: false};
 });
-},{"./$.iter-define":67,"./$.string-at":87}],108:[function(_dereq_,module,exports){
+},{"./$.iter-define":68,"./$.string-at":88}],109:[function(_dereq_,module,exports){
 'use strict';
 // ECMAScript 6 symbols shim
 var $              = _dereq_('./$')
@@ -3801,21 +3955,21 @@ setToStringTag($Symbol, 'Symbol');
 setToStringTag(Math, 'Math', true);
 // 24.3.3 JSON[@@toStringTag]
 setToStringTag(global.JSON, 'JSON', true);
-},{"./$":71,"./$.an-object":40,"./$.def":48,"./$.descriptors":50,"./$.enum-keys":52,"./$.fails":53,"./$.get-names":55,"./$.global":56,"./$.has":57,"./$.is-array":63,"./$.keyof":72,"./$.library":73,"./$.property-desc":78,"./$.redef":79,"./$.set-to-string-tag":83,"./$.shared":84,"./$.to-iobject":90,"./$.uid":93,"./$.wks":94}],109:[function(_dereq_,module,exports){
+},{"./$":72,"./$.an-object":41,"./$.def":49,"./$.descriptors":51,"./$.enum-keys":53,"./$.fails":54,"./$.get-names":56,"./$.global":57,"./$.has":58,"./$.is-array":64,"./$.keyof":73,"./$.library":74,"./$.property-desc":79,"./$.redef":80,"./$.set-to-string-tag":84,"./$.shared":85,"./$.to-iobject":91,"./$.uid":94,"./$.wks":95}],110:[function(_dereq_,module,exports){
 // https://github.com/DavidBruant/Map-Set.prototype.toJSON
 var $def  = _dereq_('./$.def');
 
 $def($def.P, 'Map', {toJSON: _dereq_('./$.collection-to-json')('Map')});
-},{"./$.collection-to-json":44,"./$.def":48}],110:[function(_dereq_,module,exports){
+},{"./$.collection-to-json":45,"./$.def":49}],111:[function(_dereq_,module,exports){
 // https://github.com/DavidBruant/Map-Set.prototype.toJSON
 var $def  = _dereq_('./$.def');
 
 $def($def.P, 'Set', {toJSON: _dereq_('./$.collection-to-json')('Set')});
-},{"./$.collection-to-json":44,"./$.def":48}],111:[function(_dereq_,module,exports){
+},{"./$.collection-to-json":45,"./$.def":49}],112:[function(_dereq_,module,exports){
 _dereq_('./es6.array.iterator');
 var Iterators = _dereq_('./$.iterators');
 Iterators.NodeList = Iterators.HTMLCollection = Iterators.Array;
-},{"./$.iterators":70,"./es6.array.iterator":99}],112:[function(_dereq_,module,exports){
+},{"./$.iterators":71,"./es6.array.iterator":100}],113:[function(_dereq_,module,exports){
 (function (global){
 // This method of obtaining a reference to the global object needs to be
 // kept identical to the way it is obtained in runtime.js
@@ -3852,7 +4006,7 @@ if (hadRuntime) {
 module.exports = { "default": module.exports, __esModule: true };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./runtime":113}],113:[function(_dereq_,module,exports){
+},{"./runtime":114}],114:[function(_dereq_,module,exports){
 (function (process,global){
 "use strict";
 
@@ -4513,7 +4667,7 @@ function _typeof(obj) { return obj && obj.constructor === Symbol ? "symbol" : ty
 // use indirect eval (which violates Content Security Policy).
 (typeof global === "undefined" ? "undefined" : _typeof(global)) === "object" ? global : (typeof window === "undefined" ? "undefined" : _typeof(window)) === "object" ? window : (typeof self === "undefined" ? "undefined" : _typeof(self)) === "object" ? self : undefined);
 }).call(this,_dereq_('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":114,"babel-runtime/core-js/object/create":11,"babel-runtime/core-js/object/set-prototype-of":14,"babel-runtime/core-js/promise":15,"babel-runtime/core-js/symbol":17,"babel-runtime/core-js/symbol/iterator":18}],114:[function(_dereq_,module,exports){
+},{"_process":115,"babel-runtime/core-js/object/create":11,"babel-runtime/core-js/object/set-prototype-of":14,"babel-runtime/core-js/promise":15,"babel-runtime/core-js/symbol":17,"babel-runtime/core-js/symbol/iterator":18}],115:[function(_dereq_,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};

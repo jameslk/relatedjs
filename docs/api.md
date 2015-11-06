@@ -49,6 +49,18 @@ This is useful to check if the graphs will be merged together.
 
 Returns **boolean** 
 
+## fromSerializable
+
+Uses the given array to construct a graph. For better performance, this
+method does not check the integrity of the result, such as whether it
+is compatible with the schemas.
+
+Note: This will also overwrite any current graph data if any exists.
+
+**Parameters**
+
+-   `serializableArrayGraph` **array** An array of graph data output from `toSerializable()`.
+
 ## getChild
 
 Get the child's key of a has-one parent node.
@@ -184,6 +196,12 @@ Set a node's relationship to another node.
 -   `toKey`  Key of the node.
 
 Returns **Graph** 
+
+## toSerializable
+
+Converts the current graph into a plain JavaScript array. This allows for
+serialization, such as with JSON, for example. The result does not include
+any information about schemas.
 
 ## merge
 
