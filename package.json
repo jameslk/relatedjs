@@ -8,7 +8,7 @@
     "build": "grunt build",
     "testBuild": "mocha build/test/*-test.js build/test/**/*-test.js",
     "docs": "documentation --shallow --format md --output docs/api.md lib/*.js",
-    "dist": "grunt dist"
+    "dist": "grunt dist && npm run docs"
   },
   "repository": {
     "type": "git",

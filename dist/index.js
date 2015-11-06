@@ -35,7 +35,7 @@ var _map2 = _interopRequireDefault(_map);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/**
+/*
  * Support class for bi-directional key-value maps used internally to power
  * storing relationships for a `Graph`.
  */
@@ -1243,7 +1243,7 @@ var Graph = (function () {
             return relationship1 instanceof _relationships.HasAndBelongsToManyRelationship && relationship2 instanceof _relationships.HasAndBelongsToManyRelationship;
         }
 
-        /**
+        /*
          * Determine the primary type, which will be used as the primary index or key
          * for the graph.
          */

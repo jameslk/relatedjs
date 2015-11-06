@@ -106,6 +106,10 @@ graph3.getChildren('house', 'skiHouse', 'person');
 // Result: ['james', 'john']
 ```
 
+## API documentation
+
+API documentation can be found under [docs/api.md](docs/api.md)
+
 ## License
 
 The MIT License (MIT)
