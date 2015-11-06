@@ -4,9 +4,7 @@ module.exports = function(grunt) {
     grunt.initConfig({
         browserify: {
             options: {
-                transform: [['babelify', {
-                    optional: ['runtime']
-                }]],
+                transform: ['babelify'],
 
                 browserifyOptions: {
                     standalone: 'relatedjs',
@@ -14,8 +12,17 @@ module.exports = function(grunt) {
                 }
             },
 
-            build: {
+            srcBuild: {
                 files: {'build/lib/index.js': 'lib/index.js'}
+            },
+
+            testBuild: {
+                files: [{
+                    expand: true,
+                    cwd: 'test',
+                    src: '**/*-test.js',
+                    dest: 'build/test'
+                }]
             }
         },
 
