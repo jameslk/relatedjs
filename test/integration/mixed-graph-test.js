@@ -133,6 +133,17 @@ describe('Graph with mixed relationships', () => {
             let result5 = graph3.getChildren('house', 'skiHouse', 'person');
             // Result: ['james', 'john']
             expect(result5).to.eql(['james', 'john']);
+
+            var json = JSON.stringify(graph.toSerializable());
+            // Result: '[["room","house",["livingroom","boulderEstate"],["bedroom","boulderEstate"],["bathroom","boulderEstate"]],["house","garage",["boulderEstate","twoCar"]],["person","house",["james","boulderEstate"],["jane","boulderEstate","beachHouse"]]]'
+            expect(json).to.eql('[["room","house",["livingroom","boulderEstate"],["bedroom","boulderEstate"],["bathroom","boulderEstate"]],["house","garage",["boulderEstate","twoCar"]],["person","house",["james","boulderEstate"],["jane","boulderEstate","beachHouse"]]]');
+
+            var graphFromJson = new Graph(schemas);
+            graphFromJson.fromSerializable(JSON.parse(json));
+
+            let result6 = graphFromJson.getChildren('person', 'jane', 'house');
+            // Result: ['boulderEstate', 'beachHouse']
+            expect(result6).to.eql(['boulderEstate', 'beachHouse']);
         });
     });
 });

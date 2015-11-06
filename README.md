@@ -1,6 +1,15 @@
 # RelatedJs
 
-A schematic store of relationships between plain old JavaScript objects.
+A heavily-tested and very fast schematic store of relationships between plain old
+JavaScript objects.
+
+**Features:**
+
+- Built with performance in mind--backed by [bidirectional maps](https://en.wikipedia.org/wiki/Bidirectional_map)
+- Enforces relationships to conform to schemas
+- Very clean and understandable API
+- Thoroughly tested
+- Can be converted to and from serializable arrays for transmission over the wire (e.g. using JSON)
 
 ## Why?
 
@@ -104,6 +113,18 @@ graph3.getChildren('person', 'james', 'house');
 
 graph3.getChildren('house', 'skiHouse', 'person');
 // Result: ['james', 'john']
+```
+
+**Convert to and from JSON**
+```javascript
+var json = JSON.stringify(graph.toSerializable());
+// Result: '[["room","house",["livingroom","boulderEstate"],["bedroom","boulderEstate"],["bathroom","boulderEstate"]],["house","garage",["boulderEstate","twoCar"]],["person","house",["james","boulderEstate"],["jane","boulderEstate","beachHouse"]]]'
+
+var graphFromJson = new Graph(schemas);
+graphFromJson.fromSerializable(JSON.parse(json));
+
+graphFromJson.getChildren('person', 'jane', 'house');
+// Result: ['boulderEstate', 'beachHouse']
 ```
 
 ## API documentation
